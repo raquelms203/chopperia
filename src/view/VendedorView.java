@@ -8,19 +8,24 @@ import java.awt.EventQueue;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Image;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import model.Conexao;
+
 public class VendedorView extends JFrame{
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextField textField_3;
-	private JTextField textField_4;
+	private JTextField txtNome;
+	private JTextField txtDataNasc;
+	private JTextField txtCPF;
+	private JTextField txtCartao;
+	private JTextField txtSaldo;
 	
 	public static void main(String[] args) {
 		try {
@@ -73,28 +78,28 @@ public class VendedorView extends JFrame{
 		lblNome.setBounds(67, 39, 46, 14);
 		panelCliente.add(lblNome);
 		
-		textField = new JTextField();
-		textField.setBounds(64, 53, 402, 40);
-		panelCliente.add(textField);
-		textField.setColumns(10);
+		txtNome = new JTextField();
+		txtNome.setBounds(64, 53, 402, 40);
+		panelCliente.add(txtNome);
+		txtNome.setColumns(10);
 		
 		JLabel lblCpf = new JLabel("CPF");
 		lblCpf.setBounds(67, 129, 164, 14);
 		panelCliente.add(lblCpf);
 		
-		textField_1 = new JTextField();
-		textField_1.setBounds(285, 142, 181, 40);
-		panelCliente.add(textField_1);
-		textField_1.setColumns(10);
+		txtDataNasc = new JTextField();
+		txtDataNasc.setBounds(285, 142, 181, 40);
+		panelCliente.add(txtDataNasc);
+		txtDataNasc.setColumns(10);
 		
 		JLabel lblDataDeNascimento = new JLabel("Data de Nascimento");
 		lblDataDeNascimento.setBounds(287, 129, 110, 14);
 		panelCliente.add(lblDataDeNascimento);
 		
-		textField_2 = new JTextField();
-		textField_2.setBounds(67, 142, 181, 40);
-		panelCliente.add(textField_2);
-		textField_2.setColumns(10);
+		txtCPF = new JTextField();
+		txtCPF.setBounds(67, 142, 181, 40);
+		panelCliente.add(txtCPF);
+		txtCPF.setColumns(10);
 		
 		JLabel lblCarto = new JLabel("Cart\u00E3o");
 		lblCarto.setBounds(67, 209, 46, 14);
@@ -104,15 +109,15 @@ public class VendedorView extends JFrame{
 		lblSaldo.setBounds(285, 209, 46, 14);
 		panelCliente.add(lblSaldo);
 		
-		textField_3 = new JTextField();
-		textField_3.setBounds(67, 222, 181, 40);
-		panelCliente.add(textField_3);
-		textField_3.setColumns(10);
+		txtCartao = new JTextField();
+		txtCartao.setBounds(67, 222, 181, 40);
+		panelCliente.add(txtCartao);
+		txtCartao.setColumns(10);
 		
-		textField_4 = new JTextField();
-		textField_4.setBounds(285, 222, 181, 40);
-		panelCliente.add(textField_4);
-		textField_4.setColumns(10);
+		txtSaldo = new JTextField();
+		txtSaldo.setBounds(285, 222, 181, 40);
+		panelCliente.add(txtSaldo);
+		txtSaldo.setColumns(10);
 		
 		JButton btnExcluir = new JButton("Excluir");
 		btnExcluir.addActionListener(new ActionListener() {
@@ -124,6 +129,22 @@ public class VendedorView extends JFrame{
 		panelCliente.add(btnExcluir);
 		
 		JButton btnConcluido = new JButton("Concluido");
+		btnConcluido.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String query = "INSERT INTO public.cartoes (\"cpfCartao\", \"dataNasc\", saldo, status) VALUES "
+						+ txtCPF.getText() + ", '" + txtDataNasc.getText() + "', " + txtSaldo.getText() + ", " + true;
+					 
+				JOptionPane.showMessageDialog(null, query);
+				Conexao con = new Conexao();
+				boolean res = con.executeUpdate(query);
+				
+				if(res) 
+					JOptionPane.showMessageDialog(null, "Sucesso");
+				else 
+					JOptionPane.showMessageDialog(null, "Erro");
+				
+			}
+		});
 		btnConcluido.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnConcluido.setBounds(287, 300, 179, 40);
 		panelCliente.add(btnConcluido);
