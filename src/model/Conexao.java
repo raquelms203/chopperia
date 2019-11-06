@@ -16,38 +16,34 @@ public class Conexao {
 	private String address;
 	
 	public Conexao() {
-		url="jdbc:postgresql://127.0.0.1:59730/d64q4qcqv82sg"; 
-		usr = "postgres";
-	    pass = "36de7d63f79543eb1480eaa06286cde9eb4039f74150bed205cd2f72aad47775";
+		url="jdbc:postgresql://ec2-174-129-231-116.compute-1.amazonaws.com:5432/d64q4qcqv826sg";
+		usr = "hvcvtjzeqcgzxe";
+	    pass = "123";
 	}
 	
 	public Connection getConnection() {
-		try {
-			try {
-				Class.forName("org.postgresql.Driver");
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {			
+			Class.forName("org.postgresql.Driver");		
 			Connection con = DriverManager.getConnection(url, usr, pass);
+			System.out.println(con);
 			return con;
 			
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			JOptionPane.showMessageDialog(null, "Problemas com a conexão\n" + e);
 			return null;
 		}
 	}
 	
-	public boolean executeUpdate(String query) {
+	public int executeUpdate(String query) {
 		try {
 			Connection con = getConnection();
-			PreparedStatement prep = con.prepareStatement(query);
-			boolean res = prep.execute();
+			Statement stm = con.createStatement();
+			int res = stm.executeUpdate(query);
 			con.close();
 			return res;
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, e);
-			return false;
+			return 0;
 		}
 	}
 	

@@ -10,6 +10,9 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Image;
@@ -131,17 +134,41 @@ public class VendedorView extends JFrame{
 		JButton btnConcluido = new JButton("Concluido");
 		btnConcluido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String query = "INSERT INTO public.cartoes (\"cpfCartao\", \"dataNasc\", saldo, status) VALUES "
-						+ txtCPF.getText() + ", '" + txtDataNasc.getText() + "', " + txtSaldo.getText() + ", " + true;
-					 
-				JOptionPane.showMessageDialog(null, query);
-				Conexao con = new Conexao();
-				boolean res = con.executeUpdate(query);
+//				String query = "INSERT INTO public.cartoes (\"cpfCartao\", \"dataNasc\", saldo, status, nome) VALUES "
+//						+ "(" + txtCPF.getText() + ", '" + txtDataNasc.getText() 
+//						+ "', " + txtSaldo.getText() + ", " + true +", '" + txtNome.getText() + "');";
 				
-				if(res) 
-					JOptionPane.showMessageDialog(null, "Sucesso");
-				else 
-					JOptionPane.showMessageDialog(null, "Erro");
+				String query = "INSERT INTO cartoes (nome) VALUES (?)";
+
+				System.out.println(query);
+
+	
+				
+//				Connection con = new Conexao().getConnection();
+//
+//				PreparedStatement prep = con.prepareStatement(sql);
+//				
+//				prep.setInt(1, Integer.parseInt(txtCPF.getText()));
+//				prep.setDate(2, new );
+//					 
+//				JOptionPane.showMessageDialog(null, query);
+				
+				Conexao conexao = new Conexao();
+				
+				Connection conn = conexao.getConnection();
+				System.out.println(conn);
+				try {
+					PreparedStatement prep = conn.prepareStatement(query);
+					prep.setString(1, txtNome.getText());
+					prep.execute();
+					conn.close();
+				} catch (SQLException e) {
+					JOptionPane.showMessageDialog(null, e);
+				}
+				
+			
+				
+				
 				
 			}
 		});
