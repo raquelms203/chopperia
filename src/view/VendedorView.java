@@ -134,32 +134,21 @@ public class VendedorView extends JFrame{
 		JButton btnConcluido = new JButton("Concluido");
 		btnConcluido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-//				String query = "INSERT INTO public.cartoes (\"cpfCartao\", \"dataNasc\", saldo, status, nome) VALUES "
-//						+ "(" + txtCPF.getText() + ", '" + txtDataNasc.getText() 
-//						+ "', " + txtSaldo.getText() + ", " + true +", '" + txtNome.getText() + "');";
-				
-				String query = "INSERT INTO cartoes (nome) VALUES (?)";
 
-				System.out.println(query);
+//				String query = "INSERT INTO cartoes (nome, \"cpfCartao\", \"dataNasc\", saldo, status)"
+//						+ " VALUES (?, ?, ?, ?, ?)";
+				
+				
 
-	
-				
-//				Connection con = new Conexao().getConnection();
-//
-//				PreparedStatement prep = con.prepareStatement(sql);
-//				
-//				prep.setInt(1, Integer.parseInt(txtCPF.getText()));
-//				prep.setDate(2, new );
-//					 
-//				JOptionPane.showMessageDialog(null, query);
-				
 				Conexao conexao = new Conexao();
 				
 				Connection conn = conexao.getConnection();
 				System.out.println(conn);
 				try {
-					PreparedStatement prep = conn.prepareStatement(query);
+					PreparedStatement prep = conn.prepareStatement("");
 					prep.setString(1, txtNome.getText());
+				//	prep.setInt(2, txt);
+					System.out.println("");
 					prep.execute();
 					conn.close();
 				} catch (SQLException e) {
