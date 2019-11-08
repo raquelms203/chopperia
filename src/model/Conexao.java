@@ -34,31 +34,22 @@ public class Conexao {
 		}
 	}
 	
-	public int executeUpdate(String query) {
+	public static boolean executarQuery(String query) {
+		Conexao con = new Conexao();		
+		Connection conn = con.getConnection();
+		
 		try {
-			Connection con = getConnection();
-			Statement stm = con.createStatement();
-			int res = stm.executeUpdate(query);
-			con.close();
+			PreparedStatement prep = conn.prepareStatement(query);
+			boolean res = prep.execute();
+			prep.close();
+			conn.close();
+			
 			return res;
+			
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, e);
-			return 0;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
 	}
-	
-	public ResultSet executeQuery(String query) {
-		try {
-			Connection con = getConnection();
-			PreparedStatement prep = con.prepareStatement(query);
-			ResultSet rs = prep.executeQuery();
-			// con.close;
-			return rs;
-		} catch (SQLException  e) {
-			JOptionPane.showMessageDialog(null, e);
-			return null;
-
-		}
-	}
-
 }

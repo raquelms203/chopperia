@@ -80,7 +80,7 @@ public class GerenteView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 					
 				panelVerVendedores.setVisible(false);
-				panelCadastrarVendedor_1.setVisible(true);
+		//		panelCadastrarVendedor_1.setVisible(true);
 				panelCadastrarVendedor.setVisible(true);
 			}
 		});
@@ -91,7 +91,7 @@ public class GerenteView extends JFrame {
 		btnVerVendedores.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				panelCadastrarVendedor_1.setVisible(false);
+		//		panelCadastrarVendedor_1.setVisible(false);
 				panelVerVendedores.setVisible(true);
 			}
 		});
@@ -116,7 +116,7 @@ public class GerenteView extends JFrame {
 	public void setPanelCadastrarVendedor(JPanel panelCadastrarVendedor) {
 		this.panelCadastrarVendedor = panelCadastrarVendedor;
 	}
-	public JPanel getPanelCadastrarVendedor_1() {
-		return panelCadastrarVendedor_1;
-	}
+//	public JPanel getPanelCadastrarVendedor_1() {
+//	//	return panelCadastrarVendedor_1;
+//	}
 }
