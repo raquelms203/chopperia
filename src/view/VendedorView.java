@@ -11,10 +11,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Image;
@@ -46,18 +48,19 @@ public class VendedorView extends JFrame {
 	private JTextField textSaldo;
 	private JLabel lupa1;
 	private JLabel lupa2;
-
+	private int txtSize = 0;
 	private JLabel lblCpf;
 	private JLabel lblDataDeNascimento;
 	private JLabel lblNome;
 	private JLabel lblSaldo;
-
+	private JLabel lblCarregando1;
 	private JPanel panelCliente;
 	private JLabel lblNewLabel;
 	private JButton btnBuscar;
 	private JButton btnCadastrar;
 	private JButton btnConcluido;
 	private JButton btnExcluir;
+	private boolean cadastro;
 
 	public static void main(String[] args) {
 		try {
@@ -88,26 +91,43 @@ public class VendedorView extends JFrame {
 		String query = "INSERT INTO cartoes ( nome, \"cpfCartao\", saldo, status, \"dataNasc\") VALUES"
 				+ "(?, ?, ?, ?, ?)";
 		
+		String query2 = "SELECT \"nrCartao\" FROM cartoes WHERE \"cpfCartao\" = ?";
+		
 		Conexao con = new Conexao();
 		
 		Connection conn = con.getConnection();
 		
-		PreparedStatement prep;
+		PreparedStatement prep, prep2;
+		ResultSet rs;
+		
 		try {
 			prep = conn.prepareStatement(query);
 			prep.setString(1,  textNome.getText());
 			prep.setInt(2, Integer.parseInt(textCPF.getText()));
 			prep.setDouble(3, Double.parseDouble(textSaldo.getText()));
 			prep.setBoolean(4, true);
-			prep.setString(5,  textDataNascimento.getText());
+			prep.setDate(5, stringParaDate(textDataNascimento.getText()));
 
-			int res = prep.executeUpdate();
-			JOptionPane.showMessageDialog(null, query + res);
-			
-			
+			prep.executeUpdate();
 			prep.close();
+			
+			prep2 = conn.prepareStatement(query2);
+			prep2.setInt(1, Integer.parseInt(textCPF.getText()));
+			rs = prep2.executeQuery();
+			
+			System.out.println(query2);
+			
+			
+			while(rs.next()) {
+				System.out.println(rs.toString());
+				JOptionPane.showMessageDialog(null, "Cliente cadastrado com sucesso!\nCartao: " +
+				rs.getInt("nrCartao"));
+			}
+			
+			prep2.close();
+			rs.close();
 			conn.close();
-		
+					
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, e);
 			e.printStackTrace();
@@ -153,6 +173,26 @@ public class VendedorView extends JFrame {
 		
 	}
 	
+	
+	public Date stringParaDate(String txtdata) {
+		
+		String format = "" + txtdata.charAt(6) + txtdata.charAt(7) +txtdata.charAt(8) +txtdata.charAt(9) 
+		+ '-' + txtdata.charAt(3) +txtdata.charAt(4) + '-' + txtdata.charAt(0) +txtdata.charAt(1) ;
+		
+		Date date = Date.valueOf(format);
+		
+		return date;
+	}
+	
+	public String dateParaString (Date date) {
+		String string = date.toString();
+		
+		String format = "" + string.charAt(8) + string.charAt(9) + '/' + string.charAt(5) + string.charAt(6) +
+				'/' + string.charAt(0) + string.charAt(1) +string.charAt(2) +string.charAt(3);
+		
+		return format;
+	}
+	
 	public void limparCampos() {
 		textCartao.setText("");
 		textCPF.setText("");
@@ -164,8 +204,6 @@ public class VendedorView extends JFrame {
 	
 
 	public VendedorView() {
-		
-		
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 849, 483);
@@ -193,18 +231,36 @@ public class VendedorView extends JFrame {
 		textDataNascimento.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
+				
 				if(textDataNascimento.getText().length() == 2 ||
 						textDataNascimento.getText().length() == 5) {
-					textDataNascimento.setText(textDataNascimento.getText() + "/");
+					textDataNascimento.setText(textDataNascimento.getText() + '/');
+					
 				}
 				
-				
+				if(textDataNascimento.getText().length() == 10) {
+					e.consume();
+					return;
+				}
 			}
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode()==KeyEvent.VK_BACK_SPACE){
-					textDataNascimento.setText(textDataNascimento.getText().substring(0,
-							textDataNascimento.getText().length() - 1));
+					
+					if(textDataNascimento.getText().charAt(textDataNascimento.getText().length() - 1) == '/') {
+						textDataNascimento.setText(textDataNascimento.getText().
+								substring(0, textDataNascimento.getText().length() - 1));
+						return;
+					}
+					
+					if(textDataNascimento.getText().length() == 0) {
+						e.consume();
+						return;
+					}
+				}
+				
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.out.println(dateParaString(stringParaDate(textDataNascimento.getText())));
 				}
 			}
 		});
@@ -255,14 +311,25 @@ public class VendedorView extends JFrame {
 		textCartao.setColumns(10);
 
 		textSaldo = new JTextField();
+		textSaldo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					if(cadastro) {
+						lblCarregando1.setVisible(true);
+						insereCartao();
+					}
+					
+					else {
+						
+					}
+				}
+			}
+		});
 		textSaldo.setBounds(285, 222, 181, 40);
 		panelCliente.add(textSaldo);
 		textSaldo.setColumns(10);
 		
-		
-		
-		
-
 		btnExcluir = new JButton("Excluir");
 		btnExcluir.setBackground(new Color(255, 255, 255));
 		btnExcluir.addActionListener(new ActionListener() {
@@ -303,7 +370,10 @@ public class VendedorView extends JFrame {
 		btnCadastrarCliente.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnCadastrarCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				cadastro = true;
 				limparCampos();
+				lblCarto.setVisible(false);
+				textCartao.setVisible(false);
 				panelCliente.setVisible(true);
 				textDataNascimento.setVisible(true);
 				textNome.setVisible(true);
@@ -327,6 +397,7 @@ public class VendedorView extends JFrame {
 		btnAlterarCadastro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				cadastro = false;
 				limparCampos();
 
 				if (panelCliente.isVisible() == true) {
@@ -336,6 +407,8 @@ public class VendedorView extends JFrame {
 					textSaldo.setVisible(false);
 					lupa1.setVisible(true);
 					lupa2.setVisible(true);
+					lblCarto.setVisible(true);
+					textCartao.setVisible(true);
 
 					if (lblSaldo.isVisible() == true) {
 						lblSaldo.setVisible(false);
@@ -420,6 +493,7 @@ public class VendedorView extends JFrame {
 		btnCadastrar = new JButton("Cadastrar");
 		btnCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				lblCarregando1.setVisible(true);
 				insereCartao();
 				
 			}
@@ -428,7 +502,7 @@ public class VendedorView extends JFrame {
 		btnCadastrar.setBounds(183, 273, 148, 67);
 		panelCliente.add(btnCadastrar);
 		
-		JLabel lblCarregando1 = new JLabel("Carregando...");
+		lblCarregando1 = new JLabel("Carregando...");
 		lblCarregando1.setBounds(229, 351, 81, 14);
 		panelCliente.add(lblCarregando1);
 		
@@ -541,4 +615,14 @@ public class VendedorView extends JFrame {
 	public void setLblSaldo(JLabel lblSaldo) {
 		this.lblSaldo = lblSaldo;
 	}
+
+	public boolean isCadastro() {
+		return cadastro;
+	}
+
+	public void setCadastro(boolean cadastro) {
+		this.cadastro = cadastro;
+	}
+
+	
 }
