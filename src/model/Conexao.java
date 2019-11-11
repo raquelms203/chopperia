@@ -34,22 +34,4 @@ public class Conexao {
 		}
 	}
 	
-	public static boolean executarQuery(String query) {
-		Conexao con = new Conexao();		
-		Connection conn = con.getConnection();
-		
-		try {
-			PreparedStatement prep = conn.prepareStatement(query);
-			boolean res = prep.execute();
-			prep.close();
-			conn.close();
-			
-			return res;
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-	}
 }

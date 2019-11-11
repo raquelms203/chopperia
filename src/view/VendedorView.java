@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Image;
@@ -133,15 +132,19 @@ public class VendedorView extends JFrame {
 			e.printStackTrace();
 		}
 		
+		lblCarregando1.setVisible(false);
+		
 	}
 	
-	public void buscaCartaoCpf () {
+	public boolean buscaCpf () {
 		
 		String query = "SELECT * FROM cartoes WHERE \"cpfCartao\" = ?";
 		
 		Conexao con = new Conexao();
 		
 		Connection conn = con.getConnection();
+		
+		boolean result = false;
 		
 		PreparedStatement prep;
 		try {
@@ -150,13 +153,15 @@ public class VendedorView extends JFrame {
 			
 			ResultSet res = prep.executeQuery();
 			
-			while(res.next()) {
+			if(res.next()) {
 				textNome.setText(res.getString("nome"));
 				textSaldo.setText(""+ res.getDouble("saldo"));
 				textCartao.setText(""+ res.getInt("nrCartao"));
-				textDataNascimento.setText(res.getString("dataNasc"));				
+				textDataNascimento.setText(res.getString("dataNasc"));		
 				
-			}
+				result = true;
+				
+			} 
 			
 			res.close();
 			prep.close();
@@ -167,18 +172,85 @@ public class VendedorView extends JFrame {
 			e.printStackTrace();
 		}
 		
-	}
-	
-	public void atualizaCartao() {
+		return result;
 		
 	}
 	
+	public boolean  buscaCartao() {
+		
+		String query = "SELECT * FROM cartoes WHERE \"nrCartao\" = ?";
+		
+		Conexao con = new Conexao();
+		
+		Connection conn = con.getConnection();
+		
+		boolean result = false;
+		
+		PreparedStatement prep;
+		try {
+			prep = conn.prepareStatement(query);
+			prep.setInt(1,  Integer.parseInt(textCartao.getText()));
+			
+			ResultSet res = prep.executeQuery();
+			
+			
+				if(res.next()) {
+					textNome.setText(res.getString("nome"));
+					textSaldo.setText(""+ res.getDouble("saldo"));
+					textCPF.setText(""+ res.getInt("cpfCartao"));
+					textDataNascimento.setText(dateParaString(res.getDate("dataNasc")));	
+					result = true;
+				}
+			
+			res.close();
+			prep.close();
+			conn.close();
+		
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e);
+			e.printStackTrace();
+		}
+		
+		return result;
+		
+	}
+	
+	
+	public void atualizaCartao() {
+		String query = "UPDATE cartoes SET nome = ?, \"cpfCartao\" = ?, saldo = ?"
+				+ ", status = ?, \"dataNasc\" = ? WHERE \"nrCartao\" = ?";
+		
+		Conexao con = new Conexao();
+		
+		Connection conn = con.getConnection();
+		
+		PreparedStatement prep;
+		
+		try {
+			prep = conn.prepareStatement(query);
+			prep.setString(1,  textNome.getText());
+			prep.setInt(2, Integer.parseInt(textCPF.getText()));
+			prep.setDouble(3, Double.parseDouble(textSaldo.getText()));
+			prep.setBoolean(4, true);
+			prep.setDate(5, stringParaDate(textDataNascimento.getText()));
+			prep.setInt(6, Integer.parseInt(textCartao.getText()));
+			
+			prep.executeUpdate();
+			prep.close();
+			
+			
+		} catch(SQLException e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+		
+	}
 	
 	public Date stringParaDate(String txtdata) {
 		
 		String format = "" + txtdata.charAt(6) + txtdata.charAt(7) +txtdata.charAt(8) +txtdata.charAt(9) 
 		+ '-' + txtdata.charAt(3) +txtdata.charAt(4) + '-' + txtdata.charAt(0) +txtdata.charAt(1) ;
-		
+				System.out.println(format);
+
 		Date date = Date.valueOf(format);
 		
 		return date;
@@ -239,12 +311,17 @@ public class VendedorView extends JFrame {
 				}
 				
 				if(textDataNascimento.getText().length() == 10) {
-					e.consume();
+					e.consume(); 
 					return;
 				}
 			}
 			@Override
 			public void keyPressed(KeyEvent e) {
+				
+				if(textDataNascimento.getText().length() == 0) {
+					e.consume();
+					return;
+				}
 				if (e.getKeyCode()==KeyEvent.VK_BACK_SPACE){
 					
 					if(textDataNascimento.getText().charAt(textDataNascimento.getText().length() - 1) == '/') {
@@ -252,16 +329,10 @@ public class VendedorView extends JFrame {
 								substring(0, textDataNascimento.getText().length() - 1));
 						return;
 					}
-					
-					if(textDataNascimento.getText().length() == 0) {
-						e.consume();
-						return;
-					}
+				
 				}
 				
-				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-					System.out.println(dateParaString(stringParaDate(textDataNascimento.getText())));
-				}
+			
 			}
 		});
 		textDataNascimento.setBounds(285, 142, 181, 40);
@@ -289,7 +360,7 @@ public class VendedorView extends JFrame {
 					btnConcluido.setVisible(true);
 					btnBuscar.setVisible(false);
 					
-		            buscaCartaoCpf();
+		            buscaCpf();
 		        }
 			}
 		});
@@ -344,7 +415,7 @@ public class VendedorView extends JFrame {
 		btnConcluido.setBackground(new Color(255, 255, 255));
 		btnConcluido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				atualizaCartao();
 				panelCliente.setVisible(false);
 			}
 		});
@@ -473,7 +544,26 @@ public class VendedorView extends JFrame {
 		btnBuscar.setBackground(new Color(255, 255, 255));
 		btnBuscar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				
+				if(textCPF.getText().length() == 0 && textCartao.getText().length() == 0) {
+					JOptionPane.showMessageDialog(null, "Campo vazio!");
+					return;
+				}
+					
+				
+				if(textCPF.getText().length() != 0 && !buscaCpf()) {
+					textCPF.setBackground(new Color(255, 153, 153));
+					return;
+				}
+				
+				if(textCartao.getText().length() != 0 && !buscaCartao()) {
+					textCartao.setBackground(new Color(255, 153, 153));
+					return;
+				}
+				
+				textCartao.setBackground(new Color(255, 255, 255));
+				textCPF.setBackground(new Color(255, 255, 255));
+				
 				btnExcluir.setVisible(true);
 				textDataNascimento.setVisible(true);
 				textNome.setVisible(true);
@@ -484,7 +574,7 @@ public class VendedorView extends JFrame {
 				btnConcluido.setVisible(true);
 				btnBuscar.setVisible(false);
 				
-				buscaCartaoCpf();
+				
 			}
 		});
 		btnBuscar.setBounds(285, 154, 181, 82);
@@ -495,6 +585,7 @@ public class VendedorView extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				lblCarregando1.setVisible(true);
 				insereCartao();
+				limparCampos();
 				
 			}
 		});
