@@ -52,7 +52,6 @@ public class VendedorView extends JFrame {
 	private JLabel lblDataDeNascimento;
 	private JLabel lblNome;
 	private JLabel lblSaldo;
-	private JLabel lblCarregando1;
 	private JPanel panelCliente;
 	private JLabel lblNewLabel;
 	private JButton btnBuscar;
@@ -60,6 +59,7 @@ public class VendedorView extends JFrame {
 	private JButton btnConcluido;
 	private JButton btnExcluir;
 	private boolean cadastro;
+	private JLabel lblCarto;
 
 	public static void main(String[] args) {
 		try {
@@ -114,11 +114,7 @@ public class VendedorView extends JFrame {
 			prep2.setInt(1, Integer.parseInt(textCPF.getText()));
 			rs = prep2.executeQuery();
 			
-			System.out.println(query2);
-			
-			
 			while(rs.next()) {
-				System.out.println(rs.toString());
 				JOptionPane.showMessageDialog(null, "Cliente cadastrado com sucesso!\nCartao: " +
 				rs.getInt("nrCartao"));
 			}
@@ -131,8 +127,6 @@ public class VendedorView extends JFrame {
 			JOptionPane.showMessageDialog(null, e);
 			e.printStackTrace();
 		}
-		
-		lblCarregando1.setVisible(false);
 		
 	}
 	
@@ -243,13 +237,41 @@ public class VendedorView extends JFrame {
 			JOptionPane.showMessageDialog(null, e);
 		}
 		
+		JOptionPane.showMessageDialog(null, "Cliente editado com sucesso!");
+		
 	}
+	
+	public void deletaCartao() {
+		String query = "DELETE FROM cartoes WHERE \"nrCartao\" = ?";
+		
+		Conexao con = new Conexao();
+		
+		Connection conn = con.getConnection();
+		
+		PreparedStatement prep;
+		
+		try {
+			prep = conn.prepareStatement(query);
+			prep.setInt(1,  Integer.parseInt(textCartao.getText()));
+			
+			prep.execute();
+			prep.close();
+			
+			
+		} catch(SQLException e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+		
+		JOptionPane.showMessageDialog(null, "Cliente apagado com sucessso!");
+		
+	}
+	
+	
 	
 	public Date stringParaDate(String txtdata) {
 		
 		String format = "" + txtdata.charAt(6) + txtdata.charAt(7) +txtdata.charAt(8) +txtdata.charAt(9) 
 		+ '-' + txtdata.charAt(3) +txtdata.charAt(4) + '-' + txtdata.charAt(0) +txtdata.charAt(1) ;
-				System.out.println(format);
 
 		Date date = Date.valueOf(format);
 		
@@ -265,6 +287,30 @@ public class VendedorView extends JFrame {
 		return format;
 	}
 	
+	public boolean campoVazio() {
+		if(textNome.getText().length() == 0) { 
+			JOptionPane.showMessageDialog(null, "Campo 'Nome' vazio!");
+			return true;
+		}
+		
+		if(textDataNascimento.getText().length() != 10) {
+			JOptionPane.showMessageDialog(null, "Campo 'Data de Nascimento' incompleto!");
+			return true;
+		}
+		
+		if(textCPF.getText().length() == 0) {
+			JOptionPane.showMessageDialog(null, "Campo 'CPF' vazio!");
+			return true;
+		}
+		
+		if(textSaldo.getText().length() == 0) {
+			JOptionPane.showMessageDialog(null, "Campo 'Saldo' vazio!");
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public void limparCampos() {
 		textCartao.setText("");
 		textCPF.setText("");
@@ -273,6 +319,64 @@ public class VendedorView extends JFrame {
 		textSaldo.setText("");
 		
 	}
+	
+	public void mostrarPainelManipular() {
+		cadastro = false;
+		limparCampos();
+
+		if (panelCliente.isVisible() == true) {
+			textCartao.setEditable(true);
+			textDataNascimento.setVisible(false);
+			textNome.setVisible(false);
+			textSaldo.setVisible(false);
+			lupa1.setVisible(true);
+			lupa2.setVisible(true);
+			lblCarto.setVisible(true);
+			textCartao.setVisible(true);
+
+			if (lblSaldo.isVisible() == true) {
+				lblSaldo.setVisible(false);
+			}
+			if (lblDataDeNascimento.isVisible() == true) {
+				lblDataDeNascimento.setVisible(false);
+
+			}
+			if (lblNome.isVisible() == true) {
+				lblNome.setVisible(false);
+			}
+			btnCadastrar.setVisible(false);
+			btnBuscar.setVisible(true);
+			btnExcluir.setVisible(false);
+			btnConcluido.setVisible(false);
+		} else {
+
+			panelCliente.setVisible(true);
+			textCartao.setEditable(true);
+			textDataNascimento.setVisible(false);
+			textNome.setVisible(false);
+			textSaldo.setVisible(false);
+
+			if (lblSaldo.isVisible() == true) {
+				lblSaldo.setVisible(false);
+			}
+			if (lblDataDeNascimento.isVisible() == true) {
+				lblDataDeNascimento.setVisible(false);
+
+			}
+			if (lblNome.isVisible() == true) {
+				lblNome.setVisible(false);
+			}
+
+			lupa1.setVisible(true);
+			lupa2.setVisible(true);
+			btnCadastrar.setVisible(false);
+			btnBuscar.setVisible(true);
+			btnExcluir.setVisible(false);
+			btnConcluido.setVisible(false);
+		}
+		
+	}
+	
 	
 
 	public VendedorView() {
@@ -350,6 +454,7 @@ public class VendedorView extends JFrame {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode()==KeyEvent.VK_ENTER){
 					
+					if(!cadastro) {
 					btnExcluir.setVisible(true);
 					textDataNascimento.setVisible(true);
 					textNome.setVisible(true);
@@ -361,6 +466,7 @@ public class VendedorView extends JFrame {
 					btnBuscar.setVisible(false);
 					
 		            buscaCpf();
+					}
 		        }
 			}
 		});
@@ -368,7 +474,7 @@ public class VendedorView extends JFrame {
 		panelCliente.add(textCPF);
 		textCPF.setColumns(10);
 
-		JLabel lblCarto = new JLabel("Cart\u00E3o");
+		lblCarto = new JLabel("Cart\u00E3o");
 		lblCarto.setBounds(67, 209, 46, 14);
 		panelCliente.add(lblCarto);
 
@@ -387,13 +493,12 @@ public class VendedorView extends JFrame {
 			public void keyPressed(KeyEvent e) {
 				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
 					if(cadastro) {
-						lblCarregando1.setVisible(true);
+						if(campoVazio()) 
+							return;
 						insereCartao();
-					}
+						limparCampos();
+					}					
 					
-					else {
-						
-					}
 				}
 			}
 		});
@@ -405,6 +510,9 @@ public class VendedorView extends JFrame {
 		btnExcluir.setBackground(new Color(255, 255, 255));
 		btnExcluir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				textCartao.setEditable(true);
+				deletaCartao();
+				mostrarPainelManipular();				
 			}
 		});
 		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 18));
@@ -415,8 +523,10 @@ public class VendedorView extends JFrame {
 		btnConcluido.setBackground(new Color(255, 255, 255));
 		btnConcluido.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(campoVazio())
+					return;
 				atualizaCartao();
-				panelCliente.setVisible(false);
+				mostrarPainelManipular();
 			}
 		});
 		btnConcluido.setFont(new Font("Tahoma", Font.PLAIN, 18));
@@ -467,62 +577,11 @@ public class VendedorView extends JFrame {
 		panelAlterar.add(btnAlterarCadastro);
 		btnAlterarCadastro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
 				cadastro = false;
-				limparCampos();
-
-				if (panelCliente.isVisible() == true) {
-
-					textDataNascimento.setVisible(false);
-					textNome.setVisible(false);
-					textSaldo.setVisible(false);
-					lupa1.setVisible(true);
-					lupa2.setVisible(true);
-					lblCarto.setVisible(true);
-					textCartao.setVisible(true);
-
-					if (lblSaldo.isVisible() == true) {
-						lblSaldo.setVisible(false);
-					}
-					if (lblDataDeNascimento.isVisible() == true) {
-						lblDataDeNascimento.setVisible(false);
-
-					}
-					if (lblNome.isVisible() == true) {
-						lblNome.setVisible(false);
-					}
-					btnCadastrar.setVisible(false);
-					btnBuscar.setVisible(true);
-					btnExcluir.setVisible(false);
-					btnConcluido.setVisible(false);
-				} else {
-
-					panelCliente.setVisible(true);
-					textDataNascimento.setVisible(false);
-					textNome.setVisible(false);
-					textSaldo.setVisible(false);
-
-					if (lblSaldo.isVisible() == true) {
-						lblSaldo.setVisible(false);
-					}
-					if (lblDataDeNascimento.isVisible() == true) {
-						lblDataDeNascimento.setVisible(false);
-
-					}
-					if (lblNome.isVisible() == true) {
-						lblNome.setVisible(false);
-					}
-
-					lupa1.setVisible(true);
-					lupa2.setVisible(true);
-					btnCadastrar.setVisible(false);
-					btnBuscar.setVisible(true);
-					btnExcluir.setVisible(false);
-					btnConcluido.setVisible(false);
-				}
-				
+				mostrarPainelManipular();
 			}
-		});
+			}
+		);
 		btnAlterarCadastro.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnAlterarCadastro.setBounds(38, 245, 180, 114);
 
@@ -563,7 +622,7 @@ public class VendedorView extends JFrame {
 				
 				textCartao.setBackground(new Color(255, 255, 255));
 				textCPF.setBackground(new Color(255, 255, 255));
-				
+				textCartao.setEditable(false);
 				btnExcluir.setVisible(true);
 				textDataNascimento.setVisible(true);
 				textNome.setVisible(true);
@@ -583,7 +642,8 @@ public class VendedorView extends JFrame {
 		btnCadastrar = new JButton("Cadastrar");
 		btnCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				lblCarregando1.setVisible(true);
+				if(campoVazio()) 
+					return;
 				insereCartao();
 				limparCampos();
 				
@@ -593,11 +653,6 @@ public class VendedorView extends JFrame {
 		btnCadastrar.setBounds(183, 273, 148, 67);
 		panelCliente.add(btnCadastrar);
 		
-		lblCarregando1 = new JLabel("Carregando...");
-		lblCarregando1.setBounds(229, 351, 81, 14);
-		panelCliente.add(lblCarregando1);
-		
-		lblCarregando1.setVisible(false);
 		btnBuscar.setVisible(false);
 		lupa1.setVisible(false);
 		lupa2.setVisible(false);
