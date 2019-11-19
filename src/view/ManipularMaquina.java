@@ -16,14 +16,25 @@ import javax.swing.JCheckBox;
 import java.awt.Color;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
+import javax.swing.event.ChangeListener;
+
+import model.Conexao;
+import system.JtextFieldSomenteNumeros;
+
+import javax.swing.event.ChangeEvent;
+import java.awt.event.ItemListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.awt.event.ItemEvent;
 
 public class ManipularMaquina extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textNomeBebida;
 	private JTextField textMarcaBebida;
-
+	private JCheckBox chckbxRefrigerante;
 	
 	private JPanel panelAdicionarBebida;
 	private JPanel panelEstoque;
@@ -46,6 +57,50 @@ public class ManipularMaquina extends JFrame {
 				}
 			}
 		});
+	}
+	
+	public void inserirBebida() {
+		String tipo;
+		String query = "INSERT INTO opcoes (tipo, marca, quantidade, valor)"
+				+ "VALUES (?, ?, ?, ?)";
+		double qtd = 0.0;
+		
+		if(chckbxRefrigerante.isSelected()) {
+			tipo = "REFRIGERANTE";
+		} else {
+			tipo = "CERVEJA";
+		}
+		
+		switch (comboBox.getSelectedIndex()) {
+			case 0: qtd = 30; break;
+			case 1: qtd = 40; break;
+			case 2: qtd = 50; break;
+			case 3: qtd = 100; break;
+		}
+		
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setString(1, tipo);
+			prep.setString(2, textMarcaBebida.getText().toUpperCase());
+			prep.setDouble(3, qtd);
+			prep.setDouble(4, Double.parseDouble(textValor.getText()));
+			
+			prep.execute();
+			
+			prep.close();
+			conn.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+		
+		JOptionPane.showMessageDialog(null, "Bebida registrada com sucesso!");
+		
 	}
 
 	/**
@@ -94,45 +149,52 @@ public class ManipularMaquina extends JFrame {
 		contentPane.add(panelAdicionarBebida);
 		panelAdicionarBebida.setLayout(null);
 		
-		JLabel lblNomeBebida = new JLabel("Nome:");
-		lblNomeBebida.setBounds(32, 60, 60, 14);
-		panelAdicionarBebida.add(lblNomeBebida);
-		
 		JLabel lblMarca = new JLabel("Marca:");
-		lblMarca.setBounds(32, 137, 60, 14);
+		lblMarca.setBounds(32, 117, 60, 14);
 		panelAdicionarBebida.add(lblMarca);
 		
-		textNomeBebida = new JTextField();
-		textNomeBebida.setBounds(127, 58, 193, 20);
-		panelAdicionarBebida.add(textNomeBebida);
-		textNomeBebida.setColumns(10);
-		
 		textMarcaBebida = new JTextField();
-		textMarcaBebida.setBounds(127, 135, 193, 20);
+		textMarcaBebida.setBounds(127, 115, 193, 20);
 		panelAdicionarBebida.add(textMarcaBebida);
 		textMarcaBebida.setColumns(10);
 		
 		JButton btnAdicionar = new JButton("Adicionar");
 		btnAdicionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				inserirBebida();
 			}
 		});
 		btnAdicionar.setBackground(new Color(255, 255, 255));
-		btnAdicionar.setBounds(231, 244, 89, 23);
+		btnAdicionar.setBounds(231, 224, 89, 23);
 		panelAdicionarBebida.add(btnAdicionar);
 		
-		JLabel lblModelo = new JLabel("Modelo:");
-		lblModelo.setBounds(32, 98, 68, 14);
+		JLabel lblModelo = new JLabel("Tipo:");
+		lblModelo.setBounds(32, 78, 68, 14);
 		panelAdicionarBebida.add(lblModelo);
 		
 		JCheckBox chckbxCerveja = new JCheckBox("Cerveja");
+		chckbxCerveja.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(chckbxCerveja.isSelected()) {
+					chckbxRefrigerante.setSelected(false);;
+				}
+			}
+		});
+		
 		chckbxCerveja.setBackground(new Color(255, 255, 255));
-		chckbxCerveja.setBounds(127, 95, 97, 23);
+		chckbxCerveja.setBounds(127, 75, 97, 23);
 		panelAdicionarBebida.add(chckbxCerveja);
 		
-		JCheckBox chckbxRefrigerante = new JCheckBox("Refrigerante");
+		chckbxRefrigerante = new JCheckBox("Refrigerante");
+		chckbxRefrigerante.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(chckbxRefrigerante.isSelected()) {
+					chckbxCerveja.setSelected(false);;
+				}
+			}
+		});
 		chckbxRefrigerante.setBackground(new Color(255, 255, 255));
-		chckbxRefrigerante.setBounds(223, 95, 97, 23);
+		chckbxRefrigerante.setBounds(223, 75, 97, 23);
 		panelAdicionarBebida.add(chckbxRefrigerante);
 		
 		JLabel lblNovaBebida = new JLabel("Nova - Bebida");
@@ -140,22 +202,22 @@ public class ManipularMaquina extends JFrame {
 		lblNovaBebida.setBounds(134, 22, 97, 14);
 		panelAdicionarBebida.add(lblNovaBebida);
 		
-		JLabel lblValor = new JLabel("Valor:");
-		lblValor.setBounds(32, 215, 48, 14);
+		JLabel lblValor = new JLabel("Valor por litro:");
+		lblValor.setBounds(32, 195, 85, 14);
 		panelAdicionarBebida.add(lblValor);
 		
-		textValor = new JTextField();
-		textValor.setBounds(127, 213, 193, 20);
+		textValor = new JtextFieldSomenteNumeros(6);
+		textValor.setBounds(127, 193, 193, 20);
 		panelAdicionarBebida.add(textValor);
 		textValor.setColumns(10);
 		
 		JLabel lblTamanho = new JLabel("Quantidade:");
-		lblTamanho.setBounds(32, 178, 68, 14);
+		lblTamanho.setBounds(32, 158, 68, 14);
 		panelAdicionarBebida.add(lblTamanho);
 		
 		 comboBox = new JComboBox<String>();
 		 comboBox.setBackground(new Color(255, 255, 255));
-		comboBox.setBounds(127, 175, 193, 22);
+		comboBox.setBounds(127, 155, 193, 22);
 		panelAdicionarBebida.add(comboBox);
 		
 		 panelEstoque = new JPanel();

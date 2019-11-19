@@ -5,15 +5,31 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+
+import model.Conexao;
+
 import javax.swing.JComboBox;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class Maquina extends JFrame {
 
@@ -26,16 +42,16 @@ public class Maquina extends JFrame {
 	private JLabel labelSaldoDoCliente;
 	private JLabel labelNumeroCliente;
 
-	private JList listCerveja;
-	private JList listRefrigerante;
-	
+	private JList<String> listCerveja;
+	private JList<String> listRefrigerante;
+
 	JComboBox<String> comboBoxCerveja;
 	JComboBox<String> comboBoxRefrigerante;
 
 	public static void main(String[] args) {
 		try {
 			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if ("Metal".equals(info.getName())) {
+				if ("Nimbus".equals(info.getName())) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
 				}
@@ -57,7 +73,117 @@ public class Maquina extends JFrame {
 		});
 	}
 
+	public void mostrarListaCerveja() {
+
+		String query = "SELECT (marca) FROM opcoes WHERE tipo = 'CERVEJA'";
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		DefaultListModel<String> ls = new DefaultListModel<String>();
+		listCerveja.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+				ls.addElement(rs.getString("marca"));
+			}
+
+			rs.close();
+			prep.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+
+		listCerveja.setModel(ls);
+
+	}
+
+	public void mostrarListaRefrigerante() {
+
+		String query = "SELECT (marca) FROM opcoes WHERE tipo = 'REFRIGERANTE'";
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		DefaultListModel<String> ls = new DefaultListModel<String>();
+		listCerveja.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+				ls.addElement(rs.getString("marca"));
+			}
+
+			rs.close();
+			prep.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+
+		listRefrigerante.setModel(ls);
+
+	}
+
+	public double mostrarPrecoBebida(String marca) {
+
+		String query = "SELECT (valor) FROM opcoes WHERE marca = ?";
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		double preco = 0.0;
+
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setString(1, marca);
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+				preco = rs.getDouble("valor");
+			}
+
+			rs.close();
+			prep.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+			return 0.0;
+		}
+
+		return preco;
+
+	}
+	
+	public void MostrarComboBoxRefrigerante(double preco) {
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		comboBoxRefrigerante.removeAllItems();
+		comboBoxRefrigerante.addItem("300 ML " + formatter.format(preco * 0.3));
+		comboBoxRefrigerante.addItem("500 ML " + formatter.format(preco * 0.5));
+		comboBoxRefrigerante.addItem("700 ML " + formatter.format(preco * 0.7));
+		comboBoxRefrigerante.addItem("1 Litro " + formatter.format(preco));
+	}
+
+	public void MostrarComboBoxCerveja(double preco) {
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		comboBoxCerveja.removeAllItems();
+		comboBoxCerveja.addItem("300 ML " + formatter.format(preco * 0.3));
+		comboBoxCerveja.addItem("500 ML " + formatter.format(preco * 0.5));
+		comboBoxCerveja.addItem("700 ML " + formatter.format(preco * 0.7));
+		comboBoxCerveja.addItem("1 Litro " + formatter.format(preco));
+	}
+	
+	
 	public Maquina() {
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1058, 727);
 		contentPane = new JPanel();
@@ -95,7 +221,13 @@ public class Maquina extends JFrame {
 		scrollPane.setBounds(28, 262, 223, 357);
 		contentPane.add(scrollPane);
 
-		listCerveja = new JList();
+		listCerveja = new JList<String>();
+		listCerveja.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+
+				MostrarComboBoxCerveja(mostrarPrecoBebida(listCerveja.getSelectedValue()));
+			}
+		});
 		scrollPane.setViewportView(listCerveja);
 
 		JButton btnPersonalizarBebida = new JButton("Personalizar Bebida");
@@ -115,7 +247,12 @@ public class Maquina extends JFrame {
 		scrollPane_1.setBounds(443, 262, 223, 357);
 		contentPane.add(scrollPane_1);
 
-		listRefrigerante = new JList();
+		listRefrigerante = new JList<String>();
+		listRefrigerante.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				MostrarComboBoxRefrigerante(mostrarPrecoBebida(listRefrigerante.getSelectedValue()));
+			}
+		});
 		scrollPane_1.setViewportView(listRefrigerante);
 
 		JLabel lblNewLabel_1 = new JLabel("Refrigerante");
@@ -143,66 +280,48 @@ public class Maquina extends JFrame {
 		lblBebidasDisponiveis.setFont(new Font("Tahoma", Font.BOLD, 17));
 		lblBebidasDisponiveis.setBounds(256, 145, 258, 27);
 		contentPane.add(lblBebidasDisponiveis);
-		
+
 		JButton btnFinalizar = new JButton("Finalizar");
 		btnFinalizar.setForeground(new Color(255, 0, 0));
 		btnFinalizar.setBackground(new Color(255, 255, 255));
 		btnFinalizar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				dispose();
-				//implementar o fechamento ao acesso do  BD
+				// implementar o fechamento ao acesso do BD
 			}
 		});
 		btnFinalizar.setBounds(24, 11, 129, 33);
 		contentPane.add(btnFinalizar);
-		
+
 		comboBoxCerveja = new JComboBox<String>();
 		comboBoxCerveja.setBackground(new Color(255, 255, 255));
 		comboBoxCerveja.setBounds(261, 260, 172, 25);
 		contentPane.add(comboBoxCerveja);
-		
+
 		comboBoxRefrigerante = new JComboBox<String>();
 		comboBoxRefrigerante.setBackground(new Color(255, 255, 255));
 		comboBoxRefrigerante.setBounds(676, 260, 172, 25);
 		contentPane.add(comboBoxRefrigerante);
-		
+
 		JLabel lblNewLabel = new JLabel("Selecione a quantidade");
-		lblNewLabel.setBounds(286, 233, 129, 14);
+		lblNewLabel.setBounds(261, 233, 158, 14);
 		contentPane.add(lblNewLabel);
-		
+
 		JLabel label = new JLabel("Selecione a quantidade");
-		label.setBounds(697, 233, 129, 14);
+		label.setBounds(676, 233, 172, 14);
 		contentPane.add(label);
 		btnComprarCerveja.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				
-			
+
 			}
 		});
-		
-		MostrarComboBox();
+
+		mostrarListaCerveja();
+		mostrarListaRefrigerante();
 	}
-	
-	
-	public void MostrarComboBox() {
-		
-		comboBoxRefrigerante.removeAllItems();
-		comboBoxRefrigerante.addItem("300 ML");
-		comboBoxRefrigerante.addItem("500 ML");
-		comboBoxRefrigerante.addItem("700 ML");
-		comboBoxRefrigerante.addItem("1 Litro");	
-		
-		comboBoxCerveja.removeAllItems();
-		comboBoxCerveja.addItem("300 ML");
-		comboBoxCerveja.addItem("500 ML");
-		comboBoxCerveja.addItem("700 ML");
-		comboBoxCerveja.addItem("1 Litro");
-		
-	}
+
 
 
 	public JLabel getLabelSaldoDoCliente() {
@@ -221,11 +340,11 @@ public class Maquina extends JFrame {
 		this.labelNumeroCliente = labelNumeroCliente;
 	}
 
-	public JList getListCerveja() {
+	public JList<String> getListCerveja() {
 		return listCerveja;
 	}
 
-	public void setListCerveja(JList listCerveja) {
+	public void setListCerveja(JList<String> listCerveja) {
 		this.listCerveja = listCerveja;
 	}
 
@@ -233,8 +352,8 @@ public class Maquina extends JFrame {
 		return listRefrigerante;
 	}
 
-	public void setListRefrigerante(JList listRefrigerante) {
+	public void setListRefrigerante(JList<String> listRefrigerante) {
 		this.listRefrigerante = listRefrigerante;
 	}
-	
+
 }
