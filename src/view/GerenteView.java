@@ -6,6 +6,9 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import model.Conexao;
+
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Window;
@@ -14,9 +17,16 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
+import javax.swing.JPasswordField;
 
 public class GerenteView extends JFrame {
 
@@ -29,6 +39,9 @@ public class GerenteView extends JFrame {
 	private JPanel panelCadastrarVendedor;
 	private JTextField textNovoNomeVendedor;
 	private JTextField textNovoCPFvendedor;
+	private JTextField textCargoVendedor;
+	private JTextField textUserVendedor;
+	private JPasswordField passwordVendedor;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -43,6 +56,42 @@ public class GerenteView extends JFrame {
 		});
 	}
 
+	
+	public void  insereFuncionario() {
+		String query = "INSERT INTO funcionarios ( nome, \"cpfFuncionario\", cargo, \"user\",senha ) VALUES"
+				+ " (?, ?, ?, ?, ?)";
+		
+		
+		Conexao con = new Conexao();
+		
+		Connection conn = con.getConnection();
+		
+		PreparedStatement prep;
+		
+		try {
+			prep = conn.prepareStatement(query);
+			prep.setString(1,  textNovoNomeVendedor.getText());
+			prep.setInt(2, Integer.parseInt(textNovoCPFvendedor.getText()));
+			prep.setString(3, textCargoVendedor.getText());
+			prep.setString(4, textUserVendedor.getText());
+			prep.setString(5, passwordVendedor.getPassword().toString());
+			JOptionPane.showMessageDialog(null, query);
+
+			prep.execute();
+			prep.close();
+			
+			
+			
+					
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e);
+			e.printStackTrace();
+			return;
+		}
+		
+		JOptionPane.showMessageDialog(null, "OK");
+		
+	}
 	public GerenteView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1003, 660);
@@ -111,7 +160,7 @@ public class GerenteView extends JFrame {
 		contentPane.add(btnVerVendedores);
 		
 		panelCadastrarVendedor = new JPanel();
-		panelCadastrarVendedor.setBounds(349, 162, 490, 188);
+		panelCadastrarVendedor.setBounds(394, 123, 490, 253);
 		contentPane.add(panelCadastrarVendedor);
 		panelCadastrarVendedor.setBackground(new Color(255, 255, 255));
 		panelCadastrarVendedor.setLayout(null);
@@ -119,9 +168,11 @@ public class GerenteView extends JFrame {
 		JButton btnCadastrarNovoVendedor = new JButton("Cadastrar");
 		btnCadastrarNovoVendedor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				insereFuncionario();
+
 			}
 		});
-		btnCadastrarNovoVendedor.setBounds(243, 124, 109, 23);
+		btnCadastrarNovoVendedor.setBounds(243, 219, 109, 23);
 		panelCadastrarVendedor.add(btnCadastrarNovoVendedor);
 		
 		textNovoNomeVendedor = new JTextField();
@@ -135,16 +186,42 @@ public class GerenteView extends JFrame {
 		textNovoCPFvendedor.setColumns(10);
 		
 		JLabel lblNome = new JLabel("Nome:");
-		lblNome.setBounds(52, 65, 62, 14);
+		lblNome.setBounds(39, 65, 62, 14);
 		panelCadastrarVendedor.add(lblNome);
 		
 		JLabel lblCpf = new JLabel("CPF:");
-		lblCpf.setBounds(52, 96, 77, 14);
+		lblCpf.setBounds(39, 93, 77, 14);
 		panelCadastrarVendedor.add(lblCpf);
 		
 		JLabel lblCadastrarVendedor = new JLabel("Cadastrar  -  Vendedor");
 		lblCadastrarVendedor.setBounds(154, 37, 150, 14);
 		panelCadastrarVendedor.add(lblCadastrarVendedor);
+		
+		JLabel lblCargo = new JLabel("Cargo:");
+		lblCargo.setBounds(39, 126, 46, 14);
+		panelCadastrarVendedor.add(lblCargo);
+		
+		textCargoVendedor = new JTextField();
+		textCargoVendedor.setBounds(109, 123, 243, 20);
+		panelCadastrarVendedor.add(textCargoVendedor);
+		textCargoVendedor.setColumns(10);
+		
+		JLabel lblUser = new JLabel("User:");
+		lblUser.setBounds(39, 157, 46, 14);
+		panelCadastrarVendedor.add(lblUser);
+		
+		textUserVendedor = new JTextField();
+		textUserVendedor.setBounds(110, 154, 242, 20);
+		panelCadastrarVendedor.add(textUserVendedor);
+		textUserVendedor.setColumns(10);
+		
+		JLabel lblPassaword = new JLabel("Passaword:");
+		lblPassaword.setBounds(39, 188, 62, 14);
+		panelCadastrarVendedor.add(lblPassaword);
+		
+		passwordVendedor = new JPasswordField();
+		passwordVendedor.setBounds(110, 185, 242, 20);
+		panelCadastrarVendedor.add(passwordVendedor);
 		panelCadastrarVendedor.setVisible(false);
 
 		panelVerVendedores.setVisible(false);
