@@ -66,6 +66,7 @@ public class Maquina extends JFrame {
 				try {
 					Maquina frame = new Maquina();
 					frame.setVisible(true);
+					frame.setLocationRelativeTo(null);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -183,42 +184,44 @@ public class Maquina extends JFrame {
 	
 	
 	public Maquina() {
-
+		
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1058, 727);
+		setBounds(100, 100, 868, 684);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JLabel lblMaquina = new JLabel("M\u00E1quina");
+		JLabel lblMaquina = new JLabel("M\u00E1quina de Bebidas");
 		lblMaquina.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblMaquina.setBounds(496, 11, 184, 50);
+		lblMaquina.setBounds(255, 3, 184, 50);
 		contentPane.add(lblMaquina);
 
-		JLabel lblCliente = new JLabel("Cliente:");
-		lblCliente.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblCliente.setBounds(24, 91, 72, 14);
-		contentPane.add(lblCliente);
+		JLabel lblCartao = new JLabel("Cart\u00E3o:");
+		lblCartao.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblCartao.setBounds(22, 58, 72, 14);
+		contentPane.add(lblCartao);
 
 		JLabel lblSaldo = new JLabel("Saldo:");
 		lblSaldo.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblSaldo.setBounds(24, 116, 72, 14);
+		lblSaldo.setBounds(22, 83, 72, 14);
 		contentPane.add(lblSaldo);
 
 		labelSaldoDoCliente = new JLabel("----");
+		labelSaldoDoCliente.setForeground(Color.RED);
 		labelSaldoDoCliente.setFont(new Font("Tahoma", Font.BOLD, 14));
-		labelSaldoDoCliente.setBounds(118, 118, 115, 14);
+		labelSaldoDoCliente.setBounds(104, 80, 115, 17);
 		contentPane.add(labelSaldoDoCliente);
 
 		labelNumeroCliente = new JLabel("----");
-		labelNumeroCliente.setFont(new Font("Tahoma", Font.ITALIC, 14));
-		labelNumeroCliente.setBounds(118, 93, 115, 14);
+		labelNumeroCliente.setFont(new Font("Tahoma", Font.BOLD, 14));
+		labelNumeroCliente.setBounds(104, 58, 115, 14);
 		contentPane.add(labelNumeroCliente);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(28, 262, 223, 357);
+		scrollPane.setBounds(22, 202, 223, 357);
 		contentPane.add(scrollPane);
 
 		listCerveja = new JList<String>();
@@ -231,20 +234,22 @@ public class Maquina extends JFrame {
 		scrollPane.setViewportView(listCerveja);
 
 		JButton btnPersonalizarBebida = new JButton("Personalizar Bebida");
+		btnPersonalizarBebida.setBackground(Color.LIGHT_GRAY);
+		btnPersonalizarBebida.setForeground(Color.DARK_GRAY);
 		btnPersonalizarBebida.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnPersonalizarBebida.setBounds(676, 85, 335, 84);
+		btnPersonalizarBebida.setBounds(670, 309, 172, 61);
 		contentPane.add(btnPersonalizarBebida);
 
 		JLabel lblCervejas = new JLabel("Cervejas");
 		lblCervejas.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblCervejas.setBounds(105, 226, 115, 25);
+		lblCervejas.setBounds(99, 166, 115, 25);
 		contentPane.add(lblCervejas);
 
 		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(443, 262, 223, 357);
+		scrollPane_1.setBounds(437, 202, 223, 357);
 		contentPane.add(scrollPane_1);
 
 		listRefrigerante = new JList<String>();
@@ -257,34 +262,34 @@ public class Maquina extends JFrame {
 
 		JLabel lblNewLabel_1 = new JLabel("Refrigerante");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblNewLabel_1.setBounds(503, 226, 115, 27);
+		lblNewLabel_1.setBounds(497, 166, 115, 27);
 		contentPane.add(lblNewLabel_1);
 
 		JButton btnComprarRefrigerante = new JButton("Comprar");
 		btnComprarRefrigerante.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnComprarRefrigerante.setBackground(new Color(255, 255, 255));
+		btnComprarRefrigerante.setBackground(new Color(0, 153, 204));
 		btnComprarRefrigerante.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnComprarRefrigerante.setBounds(676, 297, 172, 61);
+		btnComprarRefrigerante.setBounds(670, 237, 172, 61);
 		contentPane.add(btnComprarRefrigerante);
 
 		JButton btnComprarCerveja = new JButton("Comprar");
 		btnComprarCerveja.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnComprarCerveja.setBounds(261, 296, 172, 63);
+		btnComprarCerveja.setBounds(255, 236, 172, 63);
 		contentPane.add(btnComprarCerveja);
-		btnComprarCerveja.setBackground(new Color(255, 255, 255));
+		btnComprarCerveja.setBackground(new Color(0, 153, 204));
 
 		JLabel lblBebidasDisponiveis = new JLabel("BEBIDAS DISPON\u00CDVEIS");
-		lblBebidasDisponiveis.setFont(new Font("Tahoma", Font.BOLD, 17));
-		lblBebidasDisponiveis.setBounds(256, 145, 258, 27);
+		lblBebidasDisponiveis.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblBebidasDisponiveis.setBounds(239, 120, 258, 27);
 		contentPane.add(lblBebidasDisponiveis);
 
-		JButton btnFinalizar = new JButton("Finalizar");
-		btnFinalizar.setForeground(new Color(255, 0, 0));
-		btnFinalizar.setBackground(new Color(255, 255, 255));
-		btnFinalizar.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		JButton btnFinalizar = new JButton("Finalizar Acesso!");
+		btnFinalizar.setForeground(Color.WHITE);
+		btnFinalizar.setBackground(new Color(0, 255, 102));
+		btnFinalizar.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -292,26 +297,44 @@ public class Maquina extends JFrame {
 				// implementar o fechamento ao acesso do BD
 			}
 		});
-		btnFinalizar.setBounds(24, 11, 129, 33);
+		btnFinalizar.setBounds(22, 573, 820, 61);
 		contentPane.add(btnFinalizar);
 
 		comboBoxCerveja = new JComboBox<String>();
 		comboBoxCerveja.setBackground(new Color(255, 255, 255));
-		comboBoxCerveja.setBounds(261, 260, 172, 25);
+		comboBoxCerveja.setBounds(255, 200, 172, 27);
 		contentPane.add(comboBoxCerveja);
 
 		comboBoxRefrigerante = new JComboBox<String>();
 		comboBoxRefrigerante.setBackground(new Color(255, 255, 255));
-		comboBoxRefrigerante.setBounds(676, 260, 172, 25);
+		comboBoxRefrigerante.setBounds(670, 200, 172, 25);
 		contentPane.add(comboBoxRefrigerante);
 
 		JLabel lblNewLabel = new JLabel("Selecione a quantidade");
-		lblNewLabel.setBounds(261, 233, 158, 14);
+		lblNewLabel.setBounds(283, 173, 158, 14);
 		contentPane.add(lblNewLabel);
 
 		JLabel label = new JLabel("Selecione a quantidade");
-		label.setBounds(676, 233, 172, 14);
+		label.setBounds(695, 173, 147, 14);
 		contentPane.add(label);
+		
+		JButton btnVisualizarCartao = new JButton("Visualizar Cart\u00E3o");
+		btnVisualizarCartao.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				ClienteView cartaoCliente = new ClienteView();
+				cartaoCliente.setVisible(true);
+				cartaoCliente.setLocationRelativeTo(null);
+			}
+		});
+		btnVisualizarCartao.setBounds(670, 11, 172, 33);
+		contentPane.add(btnVisualizarCartao);
+		
+		JButton button = new JButton("Personalizar Bebida");
+		button.setBackground(Color.LIGHT_GRAY);
+		button.setForeground(Color.DARK_GRAY);
+		button.setBounds(255, 309, 172, 61);
+		contentPane.add(button);
 		btnComprarCerveja.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -355,5 +378,4 @@ public class Maquina extends JFrame {
 	public void setListRefrigerante(JList<String> listRefrigerante) {
 		this.listRefrigerante = listRefrigerante;
 	}
-
 }
