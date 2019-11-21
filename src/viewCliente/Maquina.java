@@ -1,4 +1,4 @@
-package view;
+package viewCliente;
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -6,16 +6,18 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -24,12 +26,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import model.Conexao;
-
-import javax.swing.JComboBox;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
 
 public class Maquina extends JFrame {
 
@@ -48,6 +48,10 @@ public class Maquina extends JFrame {
 	JComboBox<String> comboBoxCerveja;
 	JComboBox<String> comboBoxRefrigerante;
 
+	private int NUMEROCARTAOMANIPULADO;
+
+	private ClienteView cartaoCliente;
+
 	public static void main(String[] args) {
 		try {
 			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -64,7 +68,7 @@ public class Maquina extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Maquina frame = new Maquina();
+					Maquina frame = new Maquina(-1);
 					frame.setVisible(true);
 					frame.setLocationRelativeTo(null);
 				} catch (Exception e) {
@@ -72,6 +76,72 @@ public class Maquina extends JFrame {
 				}
 			}
 		});
+	}
+
+	public String dateParaString(Date date) {
+		String string = date.toString();
+
+		String format = "" + string.charAt(8) + string.charAt(9) + '/' + string.charAt(5) + string.charAt(6) + '/'
+				+ string.charAt(0) + string.charAt(1) + string.charAt(2) + string.charAt(3);
+
+		return format;
+	}
+
+	public Date stringParaDate(String txtdata) {
+
+		String format = "" + txtdata.charAt(6) + txtdata.charAt(7) + txtdata.charAt(8) + txtdata.charAt(9) + '-'
+				+ txtdata.charAt(3) + txtdata.charAt(4) + '-' + txtdata.charAt(0) + txtdata.charAt(1);
+
+		Date date = Date.valueOf(format);
+
+		return date;
+	}
+
+	public int calculaIdade(Date dataNasc) {
+
+		Calendar dateOfBirth = new GregorianCalendar();
+
+		dateOfBirth.setTime(dataNasc);
+
+		// Cria um objeto calendar com a data atual
+
+		Calendar today = Calendar.getInstance();
+
+		// Obtém a idade baseado no ano
+
+		int age = today.get(Calendar.YEAR) - dateOfBirth.get(Calendar.YEAR);
+
+		dateOfBirth.add(Calendar.YEAR, age);
+
+		// se a data de hoje é antes da data de Nascimento, então diminui 1(um)
+
+		if (today.before(dateOfBirth)) {
+
+			age--;
+
+		}
+
+		return age;
+
+	}
+
+	public void verificaIdade(String idade) {
+
+		if (NUMEROCARTAOMANIPULADO < 0) {
+			return;
+		}
+		int idadeAtual = calculaIdade(stringParaDate(idade));
+
+		if (idadeAtual >= 18) {
+
+			mostrarListaCerveja();
+			mostrarListaRefrigerante();
+
+		} else {
+
+			mostrarListaRefrigerante();
+		}
+
 	}
 
 	public void mostrarListaCerveja() {
@@ -95,7 +165,6 @@ public class Maquina extends JFrame {
 			conn.close();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			JOptionPane.showMessageDialog(null, e);
 			return;
 		}
@@ -125,13 +194,67 @@ public class Maquina extends JFrame {
 			conn.close();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			JOptionPane.showMessageDialog(null, e);
 			return;
 		}
 
 		listRefrigerante.setModel(ls);
 
+	}
+
+	public boolean acessoCartao() {
+
+		String query = "SELECT * FROM cartoes WHERE \"nrCartao\" = ?";
+
+		Conexao con = new Conexao();
+
+		Connection conn = con.getConnection();
+
+		boolean result = false;
+
+		PreparedStatement prep;
+		try {
+
+			prep = conn.prepareStatement(query);
+			prep.setInt(1, getNUMEROCARTAOMANIPULADO());
+
+			ResultSet res = prep.executeQuery();
+
+			if (res.next()) {
+
+				DecimalFormat df = new DecimalFormat("0.00");
+
+				cartaoCliente.getLbNomeCliente().setText("" + res.getString("nome"));
+				cartaoCliente.getLbSaldoClient().setText("" + df.format(res.getDouble("saldo")));
+				cartaoCliente.getLbCPFCliente().setText("" + res.getInt("cpfCartao"));
+				cartaoCliente.getLbDataNascClient().setText(dateParaString(res.getDate("dataNasc")));
+				cartaoCliente.getLbCartaoCliente().setText("" + NUMEROCARTAOMANIPULADO);
+
+				result = true;
+			}
+
+			res.close();
+			prep.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e);
+			e.printStackTrace();
+		}
+
+		return result;
+
+	}
+
+	public void refresh() {
+
+		if (NUMEROCARTAOMANIPULADO < 0) {
+
+			return;
+		}
+		acessoCartao();
+		labelNumeroCliente.setText(cartaoCliente.getLbCartaoCliente().getText());
+		labelSaldoDoCliente.setText(cartaoCliente.getLbSaldoClient().getText());
 	}
 
 	public double mostrarPrecoBebida(String marca) {
@@ -155,7 +278,6 @@ public class Maquina extends JFrame {
 			conn.close();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			JOptionPane.showMessageDialog(null, e);
 			return 0.0;
 		}
@@ -163,7 +285,305 @@ public class Maquina extends JFrame {
 		return preco;
 
 	}
-	
+
+	public void comprarCerveja(String marca) {
+
+		if (NUMEROCARTAOMANIPULADO < 0) {
+
+			return;
+		}
+
+		String query = "SELECT (valor) FROM opcoes WHERE marca = ?";
+
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+
+		DecimalFormat df = new DecimalFormat("00.00");
+
+		double valor = 0;
+
+		try {
+
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setString(1, marca);
+
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+
+				valor = rs.getDouble("valor");
+			}
+
+			rs.close();
+			prep.close();
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+		double saldo = 0;
+		df.format(saldo);
+
+		query = "SELECT (saldo) FROM cartoes WHERE \"nrCartao\" = ?";
+
+		try {
+
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setInt(1, getNUMEROCARTAOMANIPULADO());
+
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+
+				saldo = rs.getDouble("saldo");
+			}
+
+			rs.close();
+			prep.close();
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+		switch (comboBoxCerveja.getSelectedIndex()) {
+		case 0:
+			valor = valor / 4;
+			df.format(valor);
+			break;
+		case 1:
+			valor = valor / 3;
+			df.format(valor);
+
+			break;
+		case 2:
+			valor = valor / 2;
+			df.format(valor);
+
+			break;
+		case 3:
+			valor = valor / 1;
+			df.format(valor);
+
+			break;
+
+		default:
+			break;
+		}
+
+		if (saldo >= valor) {
+
+			NumberFormat formatter = NumberFormat.getCurrencyInstance();
+			saldo = saldo - valor;
+
+			formatter.format(saldo);
+
+			query = "UPDATE cartoes SET saldo = ? WHERE \"nrCartao\" = ?";
+
+			try {
+
+				PreparedStatement prep = conn.prepareStatement(query);
+				prep.setDouble(1, saldo);
+				prep.setInt(2, getNUMEROCARTAOMANIPULADO());
+
+				prep.executeUpdate();
+				prep.close();
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e);
+
+			}
+
+			query = "SELECT quantidade FROM opcoes WHERE marca = ?";
+			double tamanho = 1.00;
+			double quantidade = 0;
+			df.format(tamanho);
+			df.format(quantidade);
+
+			try {
+
+				PreparedStatement prep = conn.prepareStatement(query);
+				prep.setString(1, marca);
+
+				ResultSet rs = prep.executeQuery();
+
+				while (rs.next()) {
+
+					quantidade = rs.getDouble("quantidade");
+				}
+
+				rs.close();
+				prep.close();
+
+				switch (comboBoxCerveja.getSelectedIndex()) {
+
+				case 0:
+					tamanho = tamanho / 4;
+
+					break;
+				case 1:
+					tamanho = tamanho / 2;
+
+					break;
+				case 2:
+					tamanho = tamanho / 3;
+
+					break;
+				case 3:
+					tamanho = tamanho / 1;
+
+					break;
+				default:
+					break;
+				}
+
+				quantidade = quantidade - tamanho;
+
+			} catch (Exception e) {
+
+				JOptionPane.showMessageDialog(null, e);
+			}
+
+			try {
+
+				query = "UPDATE opcoes SET quantidade = ? WHERE marca = ?";
+				PreparedStatement prep = conn.prepareStatement(query);
+
+				prep.setDouble(1, quantidade);
+				prep.setString(2, marca);
+				prep.executeQuery();
+
+				prep.close();
+				conn.close();
+
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+
+		} else {
+
+			JOptionPane.showMessageDialog(null, "Você não possui saldo suficiente");
+		}
+
+		refresh();
+
+	}
+
+	public void comprarRefrigerante(String marca) {
+
+		if (NUMEROCARTAOMANIPULADO < 0) {
+
+			return;
+		}
+
+		String query = "SELECT (valor) FROM opcoes WHERE marca = ?";
+
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+
+		DecimalFormat df = new DecimalFormat("00.00");
+
+		double valor = 0;
+
+		try {
+
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setString(1, marca);
+
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+
+				valor = rs.getDouble("valor");
+			}
+
+			rs.close();
+			prep.close();
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+		double saldo = 0;
+		df.format(saldo);
+
+		query = "SELECT (saldo) FROM cartoes WHERE \"nrCartao\" = ?";
+
+		try {
+
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setInt(1, getNUMEROCARTAOMANIPULADO());
+
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+
+				saldo = rs.getDouble("saldo");
+			}
+
+			rs.close();
+			prep.close();
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+		switch (comboBoxRefrigerante.getSelectedIndex()) {
+		case 0:
+			valor = valor / 4;
+			df.format(valor);
+			break;
+		case 1:
+			valor = valor / 3;
+			df.format(valor);
+
+			break;
+		case 2:
+			valor = valor / 2;
+			df.format(valor);
+
+			break;
+		case 3:
+			valor = valor / 1;
+			df.format(valor);
+
+			break;
+
+		default:
+			break;
+		}
+
+		if (saldo >= valor) {
+
+			NumberFormat formatter = NumberFormat.getCurrencyInstance();
+			saldo = saldo - valor;
+
+			formatter.format(saldo);
+
+			query = "UPDATE cartoes SET saldo = ? WHERE \"nrCartao\" = ?";
+
+			try {
+
+				PreparedStatement prep = conn.prepareStatement(query);
+				prep.setDouble(1, saldo);
+				prep.setInt(2, getNUMEROCARTAOMANIPULADO());
+
+				prep.executeUpdate();
+				prep.close();
+				conn.close();
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e);
+
+			}
+		} else {
+
+			JOptionPane.showMessageDialog(null, "Você não possui saldo suficiente");
+		}
+
+		refresh();
+
+	}
+
 	public void MostrarComboBoxRefrigerante(double preco) {
 		NumberFormat formatter = NumberFormat.getCurrencyInstance();
 		comboBoxRefrigerante.removeAllItems();
@@ -181,12 +601,14 @@ public class Maquina extends JFrame {
 		comboBoxCerveja.addItem("700 ML " + formatter.format(preco * 0.7));
 		comboBoxCerveja.addItem("1 Litro " + formatter.format(preco));
 	}
-	
-	
-	public Maquina() {
-		
-		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+	public Maquina(int numeroCartao) {
+
+		NUMEROCARTAOMANIPULADO = numeroCartao;
+		cartaoCliente = new ClienteView();
+		acessoCartao();
+
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 868, 684);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
@@ -266,20 +688,28 @@ public class Maquina extends JFrame {
 		contentPane.add(lblNewLabel_1);
 
 		JButton btnComprarRefrigerante = new JButton("Comprar");
-		btnComprarRefrigerante.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnComprarRefrigerante.setBackground(new Color(0, 153, 204));
+		btnComprarRefrigerante.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnComprarRefrigerante.setBackground(new Color(0, 191, 255));
 		btnComprarRefrigerante.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
+				if (listRefrigerante.getSelectedIndex() >= 0) {
+
+					comprarRefrigerante(listRefrigerante.getSelectedValue());
+				} else {
+
+				}
+
 			}
 		});
 		btnComprarRefrigerante.setBounds(670, 237, 172, 61);
 		contentPane.add(btnComprarRefrigerante);
 
 		JButton btnComprarCerveja = new JButton("Comprar");
-		btnComprarCerveja.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		btnComprarCerveja.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnComprarCerveja.setBounds(255, 236, 172, 63);
 		contentPane.add(btnComprarCerveja);
-		btnComprarCerveja.setBackground(new Color(0, 153, 204));
+		btnComprarCerveja.setBackground(new Color(0, 191, 255));
 
 		JLabel lblBebidasDisponiveis = new JLabel("BEBIDAS DISPON\u00CDVEIS");
 		lblBebidasDisponiveis.setFont(new Font("Tahoma", Font.BOLD, 18));
@@ -287,14 +717,22 @@ public class Maquina extends JFrame {
 		contentPane.add(lblBebidasDisponiveis);
 
 		JButton btnFinalizar = new JButton("Finalizar Acesso!");
-		btnFinalizar.setForeground(Color.WHITE);
-		btnFinalizar.setBackground(new Color(0, 255, 102));
+		btnFinalizar.setForeground(new Color(0, 0, 0));
+		btnFinalizar.setBackground(new Color(0, 250, 154));
 		btnFinalizar.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnFinalizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				dispose();
-				// implementar o fechamento ao acesso do BD
+				if (NUMEROCARTAOMANIPULADO == -1) {
+
+					dispose();
+				} else {
+
+					LoginCliente.frame.setVisible(true);
+					NUMEROCARTAOMANIPULADO = -1;
+					dispose();
+					// implementar o fechamento ao acesso do BD
+				}
 			}
 		});
 		btnFinalizar.setBounds(22, 573, 820, 61);
@@ -317,19 +755,19 @@ public class Maquina extends JFrame {
 		JLabel label = new JLabel("Selecione a quantidade");
 		label.setBounds(695, 173, 147, 14);
 		contentPane.add(label);
-		
+
 		JButton btnVisualizarCartao = new JButton("Visualizar Cart\u00E3o");
 		btnVisualizarCartao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				ClienteView cartaoCliente = new ClienteView();
+
 				cartaoCliente.setVisible(true);
 				cartaoCliente.setLocationRelativeTo(null);
+
 			}
 		});
 		btnVisualizarCartao.setBounds(670, 11, 172, 33);
 		contentPane.add(btnVisualizarCartao);
-		
+
 		JButton button = new JButton("Personalizar Bebida");
 		button.setBackground(Color.LIGHT_GRAY);
 		button.setForeground(Color.DARK_GRAY);
@@ -338,14 +776,31 @@ public class Maquina extends JFrame {
 		btnComprarCerveja.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
+				if (listCerveja.getSelectedIndex() >= 0) {
+
+					comprarCerveja(listCerveja.getSelectedValue());
+
+				}
+
 			}
 		});
 
-		mostrarListaCerveja();
-		mostrarListaRefrigerante();
+		labelNumeroCliente.setText(cartaoCliente.getLbCartaoCliente().getText());
+		labelSaldoDoCliente.setText(cartaoCliente.getLbSaldoClient().getText());
+
+		JButton btnRefresh = new JButton("()");
+		btnRefresh.setBackground(new Color(255, 255, 255));
+		btnRefresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				refresh();
+			}
+		});
+		btnRefresh.setBounds(624, 11, 44, 33);
+		contentPane.add(btnRefresh);
+
+		verificaIdade(cartaoCliente.getLbDataNascClient().getText());
 	}
-
-
 
 	public JLabel getLabelSaldoDoCliente() {
 		return labelSaldoDoCliente;
@@ -371,11 +826,27 @@ public class Maquina extends JFrame {
 		this.listCerveja = listCerveja;
 	}
 
-	public JList getListRefrigerante() {
+	public JList<String> getListRefrigerante() {
 		return listRefrigerante;
 	}
 
 	public void setListRefrigerante(JList<String> listRefrigerante) {
 		this.listRefrigerante = listRefrigerante;
+	}
+
+	public int getNUMEROCARTAOMANIPULADO() {
+		return NUMEROCARTAOMANIPULADO;
+	}
+
+	public void setNUMEROCARTAOMANIPULADO(int nUMEROCARTAOMANIPULADO) {
+		NUMEROCARTAOMANIPULADO = nUMEROCARTAOMANIPULADO;
+	}
+
+	public ClienteView getCartaoCliente() {
+		return cartaoCliente;
+	}
+
+	public void setCartaoCliente(ClienteView cartaoCliente) {
+		this.cartaoCliente = cartaoCliente;
 	}
 }
