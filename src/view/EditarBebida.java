@@ -54,7 +54,7 @@ public class EditarBebida extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					EditarBebida frame = new EditarBebida();
+					EditarBebida frame = new EditarBebida("");
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -76,17 +76,25 @@ public class EditarBebida extends JFrame {
 			ResultSet rs = prep.executeQuery();
 			
 			while(rs.next()) {
-				if(rs.getString("tipo") ==  "CERVEJA") {
+				if(rs.getString("tipo").equalsIgnoreCase("CERVEJA")) {
+					
 					chckbxCerveja.setSelected(true);
 				} else if (rs.getString("tipo") ==  "REFRIGERANTE") {
 					chckbxRefrigerante.setSelected(true);
+					JOptionPane.showMessageDialog(null, "ok");
 				}
 				
 				txtMarca.setText(marcaSelecionada);
 				
 				qtdAtual = df.format(rs.getDouble("quantidade"));
 				
-				txtValor.setText(rs.getDouble("valor")+ "");		
+				txtValor.setText(rs.getDouble("valor")+ "");
+				
+				JLabel lblNewLabel = new JLabel("Atual: " + qtdAtual + " L");
+				lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
+				lblNewLabel.setForeground(new Color(0, 128, 128));
+				lblNewLabel.setBounds(268, 162, 77, 14);
+				contentPane.add(lblNewLabel);
 				
 			}
 		} catch (SQLException e) {
@@ -107,7 +115,8 @@ public class EditarBebida extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public EditarBebida() {
+	public EditarBebida(String marcaSelecionada) {
+		this.marcaSelecionada = marcaSelecionada;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 422, 428);
 		contentPane = new JPanel();
@@ -174,11 +183,7 @@ public class EditarBebida extends JFrame {
 		btnConcludo.setBounds(127, 280, 174, 68);
 		contentPane.add(btnConcludo);
 		
-		JLabel lblNewLabel = new JLabel("Atual: " + qtdAtual + " L");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel.setForeground(new Color(0, 128, 128));
-		lblNewLabel.setBounds(256, 162, 77, 14);
-		contentPane.add(lblNewLabel);
+	
 		
 		JLabel lblAdicionar = new JLabel("Adicionar");
 		lblAdicionar.setBounds(76, 154, 85, 14);

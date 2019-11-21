@@ -32,6 +32,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ItemEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class ManipularMaquina extends JFrame {
 
@@ -41,6 +43,7 @@ public class ManipularMaquina extends JFrame {
 	private JCheckBox chckbxCerveja;
 	private JPanel panelAdicionarBebida;
 	private JPanel panelEstoque;
+	private String marca = "";
 
 	private JList<String> listBebidas;
 
@@ -130,7 +133,7 @@ public class ManipularMaquina extends JFrame {
 
 	public void mostrarListaEstoque() {
 
-		String query = "SELECT tipo, marca, quantidade FROM opcoes";
+		String query = "SELECT tipo, marca, quantidade FROM opcoes ORDER BY tipo";
 		Conexao con = new Conexao();
 		Connection conn = con.getConnection();
 		DefaultListModel<String> ls = new DefaultListModel<String>();
@@ -142,7 +145,7 @@ public class ManipularMaquina extends JFrame {
 
 			while (rs.next()) {
 				ls.addElement(
-						rs.getString("tipo") + "    " + rs.getString("marca") + "    " + rs.getDouble("quantidade"));
+				rs.getString("tipo") + "  " + rs.getString("marca") + " - " + rs.getDouble("quantidade") + " L");
 			}
 
 			rs.close();
@@ -305,12 +308,26 @@ public class ManipularMaquina extends JFrame {
 		panelEstoque.add(scrollPane);
 
 		listBebidas = new JList<String>();
+		listBebidas.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				String[] format = listBebidas.getSelectedValue().split("  ");
+				
+				format = format[1].split(" -");
+				marca = format[0];
+				
+			}
+		});
 		scrollPane.setViewportView(listBebidas);
 
 		JButton btnEditar = new JButton("Editar");
 		btnEditar.setBackground(new Color(255, 255, 102));
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(marca!= "") {
+					EditarBebida eb = new EditarBebida(marca);
+					
+					eb.setVisible(true);
+				}
 			}
 		});
 		btnEditar.setBounds(371, 58, 132, 23);
@@ -370,6 +387,14 @@ public class ManipularMaquina extends JFrame {
 		comboBox.addItem("40 Litros");
 		comboBox.addItem("50 Litros");
 		comboBox.addItem("100 Litros");
+	}
+
+	public String getMarca() {
+		return marca;
+	}
+
+	public void setMarca(String marca) {
+		this.marca = marca;
 	}
 
 }
