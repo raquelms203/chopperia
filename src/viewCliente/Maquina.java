@@ -293,14 +293,64 @@ public class Maquina extends JFrame {
 			return;
 		}
 
-		String query = "SELECT (valor) FROM opcoes WHERE marca = ?";
-
 		Conexao con = new Conexao();
 		Connection conn = con.getConnection();
 
-		DecimalFormat df = new DecimalFormat("00.00");
+		String query = "";
+		try {
 
+			query = "SELECT quantidade FROM opcoes WHERE marca = ?";
+
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setString(1, marca);
+			ResultSet rs = prep.executeQuery();
+
+			double quantidade = 0;
+			while (rs.next()) {
+				quantidade = rs.getDouble("quantidade");
+
+			}
+
+			double selecao = 0;
+
+			switch (comboBoxCerveja.getSelectedIndex()) {
+			case 0:
+				selecao = 0.3;
+				break;
+			case 1:
+				selecao = 0.5;
+				break;
+			case 2:
+				selecao = 0.7;
+				break;
+			case 3:
+				selecao = 1;
+				break;
+
+			default:
+				break;
+			}
+
+			if (quantidade <= selecao) {
+				rs.close();
+				prep.close();
+				conn.close();
+
+				JOptionPane.showMessageDialog(null, "Desculpe, o Estoque acabou!");
+				return;
+			} else {
+				rs.close();
+				prep.close();
+
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+
+		DecimalFormat df = new DecimalFormat("00.00");
 		double valor = 0;
+		query = "SELECT (valor) FROM opcoes WHERE marca = ?";
 
 		try {
 
@@ -411,25 +461,30 @@ public class Maquina extends JFrame {
 					quantidade = rs.getDouble("quantidade");
 				}
 
+				df.format(quantidade);
 				rs.close();
 				prep.close();
 
 				switch (comboBoxCerveja.getSelectedIndex()) {
 
 				case 0:
-					tamanho = tamanho / 4;
+					tamanho = 0.3;
+					df.format(tamanho);
 
 					break;
 				case 1:
-					tamanho = tamanho / 2;
+					tamanho = 0.5;
+					df.format(tamanho);
 
 					break;
 				case 2:
-					tamanho = tamanho / 3;
+					tamanho = 0.7;
+					df.format(tamanho);
 
 					break;
 				case 3:
 					tamanho = tamanho / 1;
+					df.format(tamanho);
 
 					break;
 				default:
@@ -437,6 +492,7 @@ public class Maquina extends JFrame {
 				}
 
 				quantidade = quantidade - tamanho;
+				df.format(quantidade);
 
 			} catch (Exception e) {
 
@@ -446,17 +502,18 @@ public class Maquina extends JFrame {
 			try {
 
 				query = "UPDATE opcoes SET quantidade = ? WHERE marca = ?";
+
 				PreparedStatement prep = conn.prepareStatement(query);
 
 				prep.setDouble(1, quantidade);
 				prep.setString(2, marca);
-				prep.executeQuery();
+				prep.executeUpdate();
 
 				prep.close();
 				conn.close();
 
 			} catch (Exception e) {
-				// TODO: handle exception
+				JOptionPane.showMessageDialog(null, "EROW" + e);
 			}
 
 		} else {
@@ -475,14 +532,68 @@ public class Maquina extends JFrame {
 			return;
 		}
 
-		String query = "SELECT (valor) FROM opcoes WHERE marca = ?";
-
 		Conexao con = new Conexao();
 		Connection conn = con.getConnection();
+
+		String query = "";
+
+		try {
+
+			query = "SELECT (quantidade) FROM opcoes WHERE marca = ?";
+
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.setString(1, marca);
+
+			ResultSet rs = prep.executeQuery();
+
+			double quantidade = 0;
+			while (rs.next()) {
+				quantidade = rs.getDouble("quantidade");
+
+			}
+
+			double selecao = 0;
+
+			switch (comboBoxRefrigerante.getSelectedIndex()) {
+			case 0:
+				selecao = 0.3;
+				break;
+			case 1:
+				selecao = 0.5;
+				break;
+			case 2:
+				selecao = 0.7;
+				break;
+			case 3:
+				selecao = 1;
+				break;
+
+			default:
+				break;
+			}
+
+			if (quantidade <= selecao) {
+				rs.close();
+				prep.close();
+				conn.close();
+
+				JOptionPane.showMessageDialog(null, "Desculpe, o Estoque acabou!");
+				return;
+			} else {
+				rs.close();
+				prep.close();
+
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
 
 		DecimalFormat df = new DecimalFormat("00.00");
 
 		double valor = 0;
+		df.format(valor);
+		query = "SELECT (valor) FROM opcoes WHERE marca = ?";
 
 		try {
 
@@ -569,12 +680,86 @@ public class Maquina extends JFrame {
 
 				prep.executeUpdate();
 				prep.close();
-				conn.close();
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, e);
 
 			}
+
+			double tamanho = 1.00;
+			double quantidade = 0;
+			df.format(tamanho);
+			df.format(quantidade);
+
+			try {
+
+				query = "SELECT quantidade FROM opcoes WHERE marca = ?";
+				PreparedStatement prep = conn.prepareStatement(query);
+				prep.setString(1, marca);
+
+				ResultSet rs = prep.executeQuery();
+
+				while (rs.next()) {
+
+					quantidade = rs.getDouble("quantidade");
+					df.format(quantidade);
+
+				}
+
+				rs.close();
+				prep.close();
+
+				switch (comboBoxRefrigerante.getSelectedIndex()) {
+
+				case 0:
+					tamanho = 0.3;
+					df.format(tamanho);
+
+					break;
+				case 1:
+					tamanho = 0.5;
+					df.format(tamanho);
+
+					break;
+				case 2:
+					tamanho = 0.7;
+					df.format(tamanho);
+
+					break;
+				case 3:
+					tamanho = tamanho / 1;
+					df.format(tamanho);
+
+					break;
+				default:
+					break;
+				}
+
+				quantidade = quantidade - tamanho;
+				df.format(quantidade);
+
+			} catch (Exception e) {
+
+				JOptionPane.showMessageDialog(null, e);
+			}
+
+			try {
+
+				query = "UPDATE opcoes SET quantidade = ? WHERE marca = ?";
+
+				PreparedStatement prep = conn.prepareStatement(query);
+
+				prep.setDouble(1, quantidade);
+				prep.setString(2, marca);
+				prep.executeUpdate();
+
+				prep.close();
+				conn.close();
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "EROW" + e);
+			}
+
 		} else {
 
 			JOptionPane.showMessageDialog(null, "Você não possui saldo suficiente");
