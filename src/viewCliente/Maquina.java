@@ -204,7 +204,7 @@ public class Maquina extends JFrame {
 
 	public boolean acessoCartao() {
 
-		String query = "SELECT * FROM cartoes WHERE \"nrCartao\" = ?";
+		String query = "SELECT * FROM cartoes WHERE \"nrcartao\" = ?";
 
 		Conexao con = new Conexao();
 
@@ -226,7 +226,7 @@ public class Maquina extends JFrame {
 
 				cartaoCliente.getLbNomeCliente().setText("" + res.getString("nome"));
 				cartaoCliente.getLbSaldoClient().setText("" + df.format(res.getDouble("saldo")));
-				cartaoCliente.getLbCPFCliente().setText("" + res.getInt("cpfCartao"));
+				cartaoCliente.getLbCPFCliente().setText("" + res.getInt("cpfcartao"));
 				cartaoCliente.getLbDataNascClient().setText(dateParaString(res.getDate("dataNasc")));
 				cartaoCliente.getLbCartaoCliente().setText("" + NUMEROCARTAOMANIPULADO);
 
@@ -374,7 +374,7 @@ public class Maquina extends JFrame {
 		double saldo = 0;
 		df.format(saldo);
 
-		query = "SELECT (saldo) FROM cartoes WHERE \"nrCartao\" = ?";
+		query = "SELECT (saldo) FROM cartoes WHERE \"nrcartao\" = ?";
 
 		try {
 
@@ -397,21 +397,21 @@ public class Maquina extends JFrame {
 
 		switch (comboBoxCerveja.getSelectedIndex()) {
 		case 0:
-			valor = valor / 4;
+			valor = valor * 0.3;
 			df.format(valor);
 			break;
 		case 1:
-			valor = valor / 3;
+			valor = valor * 0.5;
 			df.format(valor);
 
 			break;
 		case 2:
-			valor = valor / 2;
+			valor = valor * 0.7;
 			df.format(valor);
 
 			break;
 		case 3:
-			valor = valor / 1;
+			valor = valor * 1;
 			df.format(valor);
 
 			break;
@@ -427,7 +427,7 @@ public class Maquina extends JFrame {
 
 			formatter.format(saldo);
 
-			query = "UPDATE cartoes SET saldo = ? WHERE \"nrCartao\" = ?";
+			query = "UPDATE cartoes SET saldo = ? WHERE \"nrcartao\" = ?";
 
 			try {
 
@@ -606,7 +606,7 @@ public class Maquina extends JFrame {
 
 				valor = rs.getDouble("valor");
 			}
-
+			df.format(valor);
 			rs.close();
 			prep.close();
 
@@ -617,7 +617,7 @@ public class Maquina extends JFrame {
 		double saldo = 0;
 		df.format(saldo);
 
-		query = "SELECT (saldo) FROM cartoes WHERE \"nrCartao\" = ?";
+		query = "SELECT (saldo) FROM cartoes WHERE \"nrcartao\" = ?";
 
 		try {
 
@@ -630,7 +630,7 @@ public class Maquina extends JFrame {
 
 				saldo = rs.getDouble("saldo");
 			}
-
+			df.format(saldo);
 			rs.close();
 			prep.close();
 
@@ -640,21 +640,21 @@ public class Maquina extends JFrame {
 
 		switch (comboBoxRefrigerante.getSelectedIndex()) {
 		case 0:
-			valor = valor / 4;
+			valor = valor * 0.3;
 			df.format(valor);
 			break;
 		case 1:
-			valor = valor / 3;
+			valor = valor * 0.5;
 			df.format(valor);
 
 			break;
 		case 2:
-			valor = valor / 2;
+			valor = valor * 0.7 ;
 			df.format(valor);
 
 			break;
 		case 3:
-			valor = valor / 1;
+			valor = valor * 1;
 			df.format(valor);
 
 			break;
@@ -670,7 +670,7 @@ public class Maquina extends JFrame {
 
 			formatter.format(saldo);
 
-			query = "UPDATE cartoes SET saldo = ? WHERE \"nrCartao\" = ?";
+			query = "UPDATE cartoes SET saldo = ? WHERE \"nrcartao\" = ?";
 
 			try {
 

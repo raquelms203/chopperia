@@ -57,6 +57,8 @@ public class VendedorView extends JFrame {
 	private boolean cadastro;
 	private JLabel lblCarto;
 	private JLabel lblUtilitario;
+	private JLabel labelSaldoDoCartao;
+	private JLabel lblR;
 
 	public static void main(String[] args) {
 		try {
@@ -84,10 +86,10 @@ public class VendedorView extends JFrame {
 	}
 
 	public void insereCartao() {
-		String query = "INSERT INTO cartoes ( nome, \"cpfCartao\", saldo, status, \"dataNasc\") VALUES"
+		String query = "INSERT INTO cartoes ( nome, \"cpfcartao\", saldo, status, \"dataNasc\") VALUES"
 				+ "(?, ?, ?, ?, ?)";
 
-		String query2 = "SELECT \"nrCartao\" FROM cartoes WHERE \"cpfCartao\" = ?";
+		String query2 = "SELECT \"nrcartao\" FROM cartoes WHERE \"cpfcartao\" = ?";
 
 		Conexao con = new Conexao();
 
@@ -97,12 +99,11 @@ public class VendedorView extends JFrame {
 		ResultSet rs;
 
 		try {
-			
-			double saldo =  Double.parseDouble(textSaldo.getText());
+
+			double saldo = Double.parseDouble(textSaldo.getText());
 			DecimalFormat df = new DecimalFormat("0.00");
 			df.format(saldo);
 
-		
 			prep = conn.prepareStatement(query);
 			prep.setString(1, textNome.getText());
 			prep.setInt(2, Integer.parseInt(textCPF.getText()));
@@ -119,7 +120,7 @@ public class VendedorView extends JFrame {
 
 			while (rs.next()) {
 				JOptionPane.showMessageDialog(null,
-						"Cliente cadastrado com sucesso!\nCartao: " + rs.getInt("nrCartao"));
+						"Cliente cadastrado com sucesso!\ncartao: " + rs.getInt("nrcartao"));
 			}
 
 			prep2.close();
@@ -135,31 +136,38 @@ public class VendedorView extends JFrame {
 
 	public boolean buscaCpf() {
 
-		String query = "SELECT * FROM cartoes WHERE \"cpfCartao\" = ?";
-
-		Conexao con = new Conexao();
-
-		Connection conn = con.getConnection();
-
 		boolean result = false;
 
-		PreparedStatement prep;
 		try {
+			String query = "SELECT * FROM cartoes WHERE \"cpfcartao\" = ?";
+
+			Conexao con = new Conexao();
+			Connection conn = con.getConnection();
+
+			PreparedStatement prep;
 			prep = conn.prepareStatement(query);
 			prep.setInt(1, Integer.parseInt(textCPF.getText()));
 
 			ResultSet res = prep.executeQuery();
 
+			DecimalFormat df = new DecimalFormat("0.00");
+			double saldo = 0;
+
 			if (res.next()) {
 				textNome.setText(res.getString("nome"));
-				textSaldo.setText("" + res.getDouble("saldo"));
-				textCartao.setText("" + res.getInt("nrCartao"));
+				saldo = res.getDouble("saldo");
+				textCartao.setText("" + res.getInt("nrcartao"));
 				textDataNascimento.setText(res.getString("dataNasc"));
 
 				result = true;
 
 			}
+			df.format(saldo);
 
+			textSaldo.setText("" + 0);
+			labelSaldoDoCartao.setText("" + saldo);
+			labelSaldoDoCartao.setVisible(true);
+			lblR.setVisible(true);
 			res.close();
 			prep.close();
 			conn.close();
@@ -175,28 +183,36 @@ public class VendedorView extends JFrame {
 
 	public boolean buscaCartao() {
 
-		String query = "SELECT * FROM cartoes WHERE \"nrCartao\" = ?";
-
-		Conexao con = new Conexao();
-
-		Connection conn = con.getConnection();
-
 		boolean result = false;
 
-		PreparedStatement prep;
 		try {
+			String query = "SELECT * FROM cartoes WHERE \"nrcartao\" = ?";
+
+			Conexao con = new Conexao();
+			Connection conn = con.getConnection();
+
+			PreparedStatement prep;
 			prep = conn.prepareStatement(query);
 			prep.setInt(1, Integer.parseInt(textCartao.getText()));
 
 			ResultSet res = prep.executeQuery();
+			DecimalFormat df = new DecimalFormat("0.00");
+			double saldo = 0;
 
 			if (res.next()) {
+ 
 				textNome.setText(res.getString("nome"));
-				textSaldo.setText("" + res.getDouble("saldo"));
-				textCPF.setText("" + res.getInt("cpfCartao"));
+				saldo = res.getDouble("saldo");
+				textCPF.setText("" + res.getInt("cpfcartao"));
 				textDataNascimento.setText(dateParaString(res.getDate("dataNasc")));
 				result = true;
 			}
+			df.format(saldo);
+
+			textSaldo.setText("" + 0);
+			labelSaldoDoCartao.setText("" + saldo);
+			labelSaldoDoCartao.setVisible(true);
+			lblR.setVisible(true);
 
 			res.close();
 			prep.close();
@@ -212,8 +228,8 @@ public class VendedorView extends JFrame {
 	}
 
 	public void atualizaCartao() {
-		String query = "UPDATE cartoes SET nome = ?, \"cpfCartao\" = ?, saldo = ?"
-				+ ", status = ?, \"dataNasc\" = ? WHERE \"nrCartao\" = ?";
+		String query = "UPDATE cartoes SET nome = ?, \"cpfcartao\" = ?, saldo = ?"
+				+ ", status = ?, \"dataNasc\" = ? WHERE \"nrcartao\" = ?";
 
 		Conexao con = new Conexao();
 
@@ -226,6 +242,9 @@ public class VendedorView extends JFrame {
 			double saldo = Double.parseDouble(textSaldo.getText());
 
 			DecimalFormat df = new DecimalFormat("0.00");
+			double atual = Double.parseDouble(labelSaldoDoCartao.getText());
+			df.format(atual);
+			saldo = saldo + atual;
 			df.format(saldo);
 
 			prep = conn.prepareStatement(query);
@@ -248,7 +267,7 @@ public class VendedorView extends JFrame {
 	}
 
 	public void deletaCartao() {
-		String query = "DELETE FROM cartoes WHERE \"nrCartao\" = ?";
+		String query = "DELETE FROM cartoes WHERE \"nrcartao\" = ?";
 
 		Conexao con = new Conexao();
 
@@ -383,7 +402,7 @@ public class VendedorView extends JFrame {
 	public VendedorView() {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 849, 483);
+		setBounds(100, 100, 849, 500);
 
 		panelCliente = new JPanel();
 		panelCliente.setBackground(new Color(255, 255, 255));
@@ -502,7 +521,7 @@ public class VendedorView extends JFrame {
 				}
 			}
 		});
-		textSaldo.setBounds(285, 222, 181, 40);
+		textSaldo.setBounds(285, 222, 112, 40);
 		panelCliente.add(textSaldo);
 		textSaldo.setColumns(10);
 
@@ -527,6 +546,8 @@ public class VendedorView extends JFrame {
 					return;
 				atualizaCartao();
 				mostrarPainelManipular();
+				lblR.setVisible(false);
+				labelSaldoDoCartao.setVisible(false);
 			}
 		});
 		btnConcluido.setFont(new Font("Tahoma", Font.PLAIN, 18));
@@ -570,6 +591,9 @@ public class VendedorView extends JFrame {
 				btnConcluido.setVisible(false);
 				lblUtilitario.setText("CADASTRAR NOVO CLIENTE");
 				lblUtilitario.setVisible(true);
+				labelSaldoDoCartao.setVisible(false);
+				lblR.setVisible(false);
+
 			}
 		});
 		btnCadastrarCliente.setBounds(38, 120, 180, 114);
@@ -583,6 +607,8 @@ public class VendedorView extends JFrame {
 				mostrarPainelManipular();
 				lblUtilitario.setText("MANIPULAR CLIENTE EXISTENTE");
 				lblUtilitario.setVisible(true);
+				labelSaldoDoCartao.setVisible(false);
+				lblR.setVisible(false);
 
 			}
 		});
@@ -621,6 +647,8 @@ public class VendedorView extends JFrame {
 				if (textCartao.getText().length() != 0 && !buscaCartao()) {
 					textCartao.setBackground(new Color(255, 153, 153));
 					return;
+				}else {
+					
 				}
 
 				textCartao.setBackground(new Color(255, 255, 255));
@@ -662,6 +690,17 @@ public class VendedorView extends JFrame {
 		lblUtilitario.setBounds(95, 12, 345, 40);
 		panelCliente.add(lblUtilitario);
 
+		labelSaldoDoCartao = new JLabel("----");
+		labelSaldoDoCartao.setForeground(Color.RED);
+		labelSaldoDoCartao.setFont(new Font("Tahoma", Font.BOLD, 12));
+		labelSaldoDoCartao.setBounds(431, 221, 73, 40);
+		panelCliente.add(labelSaldoDoCartao);
+
+		lblR = new JLabel("+ R$");
+		lblR.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblR.setBounds(398, 221, 57, 40);
+		panelCliente.add(lblR);
+
 		btnBuscar.setVisible(false);
 		lupa1.setVisible(false);
 		lupa2.setVisible(false);
@@ -671,6 +710,8 @@ public class VendedorView extends JFrame {
 		btnConcluido.setVisible(false);
 
 		lblUtilitario.setVisible(false);
+		labelSaldoDoCartao.setVisible(false);
+		lblR.setVisible(false);
 	}
 
 	public JPanel getPanelCliente() {
@@ -776,5 +817,4 @@ public class VendedorView extends JFrame {
 	public void setCadastro(boolean cadastro) {
 		this.cadastro = cadastro;
 	}
-
 }

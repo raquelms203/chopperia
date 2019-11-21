@@ -71,7 +71,7 @@ public class LoginCliente extends JFrame {
 
 	public boolean buscaCartao() {
 
-		String query = "SELECT * FROM cartoes WHERE \"nrCartao\" = ?";
+		String query = "SELECT * FROM cartoes WHERE \"nrcartao\" = ?";
 
 		Conexao con = new Conexao();
 
