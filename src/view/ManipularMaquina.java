@@ -32,6 +32,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ItemEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class ManipularMaquina extends JFrame {
 
@@ -305,6 +307,11 @@ public class ManipularMaquina extends JFrame {
 		panelEstoque.add(scrollPane);
 
 		listBebidas = new JList<String>();
+		listBebidas.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+//				String[] format = listBebidas.getSelectedValue().split(". ");
+				
+		}});
 		scrollPane.setViewportView(listBebidas);
 
 		JButton btnEditar = new JButton("Editar");
