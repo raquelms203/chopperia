@@ -16,15 +16,6 @@ import java.awt.Font;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-
-import javax.swing.JCheckBox;
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-import java.awt.Color;
-import java.sql.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.text.NumberFormat;
 
 import javax.swing.JCheckBox;
@@ -48,7 +39,6 @@ public class EditarBebida extends JFrame {
 	private JCheckBox chckbxRefrigerante;
 	private JComboBox<String> comboBox;
 	private String qtdAtual;
-
 	private double valorAtual;
 
 	/**
@@ -83,11 +73,9 @@ public class EditarBebida extends JFrame {
 		String query = "SELECT * FROM opcoes WHERE marca = '" + marcaSelecionada + "'";
 		DecimalFormat df = new DecimalFormat();
 		df.setMinimumFractionDigits(1);
-
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
 		Conexao con = new Conexao();
 		Connection conn = con.getConnection();
-
-		NumberFormat formatter = NumberFormat.getCurrencyInstance();
 
 		try {
 			PreparedStatement prep = conn.prepareStatement(query);
@@ -115,11 +103,12 @@ public class EditarBebida extends JFrame {
 				contentPane.add(lblNewLabel);
 
 			}
-
+			
 			prep.close();
 			rs.close();
 			conn.close();
-
+			
+			
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, e);
 			// TODO: handle exception
@@ -136,6 +125,7 @@ public class EditarBebida extends JFrame {
 			qtdSelecionada = 0;
 			break;
 
+	
 		case 1:
 			qtdSelecionada = 30;
 
@@ -205,12 +195,9 @@ public class EditarBebida extends JFrame {
 		comboBox.addItem("100 Litros");
 	}
 
-
 	/**
 	 * Create the frame.
 	 */
-	
-
 	public EditarBebida(String marcaSelecionada) {
 		this.marcaSelecionada = marcaSelecionada;
 
@@ -221,88 +208,62 @@ public class EditarBebida extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JLabel lblTipo = new JLabel("Tipo:");
 		lblTipo.setBounds(76, 72, 59, 14);
 		contentPane.add(lblTipo);
-		
+
 		JLabel lblEditarBebida = new JLabel("Editar Bebida");
-		lblEditarBebida.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblEditarBebida.setBounds(164, 11, 110, 14);
+		lblEditarBebida.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblEditarBebida.setBounds(134, 31, 180, 30);
 		contentPane.add(lblEditarBebida);
-		
+
 		chckbxCerveja = new JCheckBox("Cerveja");
+		chckbxCerveja.setBackground(new Color(255, 255, 255));
 		chckbxCerveja.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if(chckbxCerveja.isSelected())
-
+				if (chckbxCerveja.isSelected())
 					chckbxRefrigerante.setSelected(false);
 			}
 		});
 		chckbxCerveja.setBounds(171, 72, 86, 23);
 		contentPane.add(chckbxCerveja);
-		
+
 		chckbxRefrigerante = new JCheckBox("Refrigerante");
+		chckbxRefrigerante.setBackground(new Color(255, 255, 255));
 		chckbxRefrigerante.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(chckbxRefrigerante.isSelected())
-
+				if (chckbxRefrigerante.isSelected())
 					chckbxRefrigerante.setSelected(false);
 			}
 		});
 		chckbxRefrigerante.setBounds(256, 72, 97, 23);
 		contentPane.add(chckbxRefrigerante);
 
-
 		JLabel lblMarca = new JLabel("Marca:");
 		lblMarca.setBounds(76, 107, 46, 14);
 		contentPane.add(lblMarca);
 
+		txtMarca = new JTextField();
+		txtMarca.setBounds(171, 108, 174, 30);
+		contentPane.add(txtMarca);
+		txtMarca.setColumns(10);
 
-		comboBox = new JComboBox<String>();
-		comboBox.setBounds(171, 154, 91, 30);
-		contentPane.add(comboBox);
-		
-		JLabel lblValorPorLitro = new JLabel("Valor por litro:");
-		lblValorPorLitro.setBounds(76, 211, 86, 14);
-		contentPane.add(lblValorPorLitro);
-		
 		comboBox = new JComboBox<String>();
 		comboBox.setBackground(new Color(255, 255, 255));
 		comboBox.setBounds(171, 154, 174, 30);
 		contentPane.add(comboBox);
 
-		lblValorPorLitro = new JLabel("Valor por litro:");
+		JLabel lblValorPorLitro = new JLabel("Valor por litro:");
 		lblValorPorLitro.setBounds(76, 211, 86, 14);
 		contentPane.add(lblValorPorLitro);
 
+		txtValor = new JTextField();
+		txtValor.setColumns(10);
+		txtValor.setBounds(171, 205, 174, 30);
+		contentPane.add(txtValor);
 
-		
 		JButton btnConcludo = new JButton("CONFIRMAR");
-		btnConcludo.setForeground(new Color(0, 0, 0));
-		btnConcludo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnConcludo.setBackground(new Color(0, 255, 153));
-		btnConcludo.setBounds(127, 280, 174, 68);
-		contentPane.add(btnConcludo);
-		
-		JLabel lblNewLabel = new JLabel("Atual: " + qtdAtual + " L");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel.setForeground(new Color(0, 128, 128));
-		lblNewLabel.setBounds(268, 162, 77, 14);
-		contentPane.add(lblNewLabel);
-		
-		JLabel lblAdicionar = new JLabel("Adicionar");
-		lblAdicionar.setBounds(76, 154, 85, 14);
-		contentPane.add(lblAdicionar);
-		
-		JLabel lblQuantidade = new JLabel("Quantidade:");
-		lblQuantidade.setBounds(76, 170, 85, 14);
-		contentPane.add(lblQuantidade);
-		
-		preencherCampos();
-		mostrarComboBox();
-
-		btnConcludo = new JButton("CONFIRMAR");
 		btnConcludo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
@@ -316,11 +277,11 @@ public class EditarBebida extends JFrame {
 		btnConcludo.setBounds(76, 252, 269, 30);
 		contentPane.add(btnConcludo);
 
-		lblAdicionar = new JLabel("Adicionar");
+		JLabel lblAdicionar = new JLabel("Adicionar");
 		lblAdicionar.setBounds(76, 154, 85, 14);
 		contentPane.add(lblAdicionar);
 
-		lblQuantidade = new JLabel("Quantidade:");
+		JLabel lblQuantidade = new JLabel("Quantidade:");
 		lblQuantidade.setBounds(76, 170, 85, 14);
 		contentPane.add(lblQuantidade);
 

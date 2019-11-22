@@ -137,7 +137,7 @@ public class ManipularMaquina extends JFrame {
 
 	public void mostrarListaEstoque() {
 
-		String query = "SELECT tipo, marca, quantidade FROM opcoes ORDER BY tipo ASC";
+		String query = "SELECT tipo, marca, quantidade FROM opcoes ORDER BY tipo";
 		Conexao con = new Conexao();
 		Connection conn = con.getConnection();
 		DefaultListModel<String> ls = new DefaultListModel<String>();
@@ -148,8 +148,8 @@ public class ManipularMaquina extends JFrame {
 			ResultSet rs = prep.executeQuery();
 
 			while (rs.next()) {
-				ls.addElement(
-				rs.getString("tipo") + "  " + rs.getString("marca") + " - " + rs.getDouble("quantidade") + " L");
+				ls.addElement(rs.getString("tipo") + "  " + rs.getString("marca") + " - " + rs.getDouble("quantidade")
+						+ " L");
 			}
 
 			rs.close();
@@ -411,7 +411,6 @@ public class ManipularMaquina extends JFrame {
 		panelEstoque.add(scrollPane);
 
 		listBebidas = new JList<String>();
-
 		listBebidas.setSelectedIndex(0);
 		listBebidas.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {

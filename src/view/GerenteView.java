@@ -247,10 +247,8 @@ public class GerenteView extends JFrame {
 		btnCadastrarVendedor.setBackground(new Color(255, 255, 255));
 		btnCadastrarVendedor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				panelCadastrarVendedor.setVisible(true);
 				panelVerVendedores.setVisible(false);
-				//	panelCadastrarVendedor_1.setVisible(true);
-						panelCadastrarVendedor.setVisible(true);
-						panelVerVendedores.setVisible(false);
 			}
 		});
 		btnCadastrarVendedor.setBounds(31, 231, 213, 86);
@@ -262,9 +260,7 @@ public class GerenteView extends JFrame {
 		btnVerVendedores.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-
 				panelCadastrarVendedor.setVisible(false);
-
 				panelVerVendedores.setVisible(true);
 				mostrarListaFuncionarios();
 
@@ -510,15 +506,6 @@ public class GerenteView extends JFrame {
 
 	public void setPanelVerVendedores(JPanel panelVerVendedores) {
 		this.panelVerVendedores = panelVerVendedores;
-	}
-
-
-	public JPanel getPanelCadastrarVendedor() {
-		return panelCadastrarVendedor;
-	}
-
-	public void setPanelCadastrarVendedor(JPanel panelCadastrarVendedor) {
-		this.panelCadastrarVendedor = panelCadastrarVendedor;
 	}
 
 	public JLabel getLabelGerente() {
