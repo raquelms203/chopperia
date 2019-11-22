@@ -107,7 +107,7 @@ public class LoginCliente extends JFrame {
 
 	public LoginCliente() {
 		
-		
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1089, 498);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));

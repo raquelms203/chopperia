@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import model.Conexao;
 import system.JtextFieldSomenteLetras;
 import system.JtextFieldSomenteNumeros;
+import system.MudarSenha;
 
 import javax.swing.SwingConstants;
 
@@ -58,7 +59,10 @@ public class VendedorView extends JFrame {
 	private JLabel lblCarto;
 	private JLabel lblUtilitario;
 	private JLabel labelSaldoDoCartao;
-	private JLabel lblR;
+	private JLabel labelVendedor;
+	private JButton btnMudarSenha;
+	private int cpf;
+	private JButton btnFinalizar;
 
 	public static void main(String[] args) {
 		try {
@@ -150,7 +154,7 @@ public class VendedorView extends JFrame {
 
 			ResultSet res = prep.executeQuery();
 
-			DecimalFormat df = new DecimalFormat("0.00");
+			NumberFormat formatter = NumberFormat.getCurrencyInstance();			
 			double saldo = 0;
 
 			if (res.next()) {
@@ -162,12 +166,11 @@ public class VendedorView extends JFrame {
 				result = true;
 
 			}
-			df.format(saldo);
+			String stringSaldo = formatter.format(saldo);
 
 			textSaldo.setText("" + 0);
-			labelSaldoDoCartao.setText("" + saldo);
+			labelSaldoDoCartao.setText(stringSaldo);
 			labelSaldoDoCartao.setVisible(true);
-			lblR.setVisible(true);
 			res.close();
 			prep.close();
 			conn.close();
@@ -196,7 +199,7 @@ public class VendedorView extends JFrame {
 			prep.setInt(1, Integer.parseInt(textCartao.getText()));
 
 			ResultSet res = prep.executeQuery();
-			DecimalFormat df = new DecimalFormat("0.00");
+			NumberFormat formatter = NumberFormat.getCurrencyInstance();			
 			double saldo = 0;
 
 			if (res.next()) {
@@ -207,12 +210,11 @@ public class VendedorView extends JFrame {
 				textDataNascimento.setText(dateParaString(res.getDate("dataNasc")));
 				result = true;
 			}
-			df.format(saldo);
+			String stringSaldo = formatter.format(saldo);
 
 			textSaldo.setText("" + 0);
-			labelSaldoDoCartao.setText("" + saldo);
+			labelSaldoDoCartao.setText(stringSaldo);
 			labelSaldoDoCartao.setVisible(true);
-			lblR.setVisible(true);
 
 			res.close();
 			prep.close();
@@ -401,7 +403,7 @@ public class VendedorView extends JFrame {
 
 	public VendedorView() {
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 849, 500);
 
 		panelCliente = new JPanel();
@@ -546,7 +548,6 @@ public class VendedorView extends JFrame {
 					return;
 				atualizaCartao();
 				mostrarPainelManipular();
-				lblR.setVisible(false);
 				labelSaldoDoCartao.setVisible(false);
 			}
 		});
@@ -563,7 +564,7 @@ public class VendedorView extends JFrame {
 
 		lblNewLabel = new JLabel("Painel do Vendedor");
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblNewLabel.setBounds(38, 68, 203, 22);
+		lblNewLabel.setBounds(286, 11, 203, 38);
 		panelAlterar.add(lblNewLabel);
 
 		JButton btnCadastrarCliente = new JButton("Cadastrar Cliente");
@@ -592,14 +593,13 @@ public class VendedorView extends JFrame {
 				lblUtilitario.setText("CADASTRAR NOVO CLIENTE");
 				lblUtilitario.setVisible(true);
 				labelSaldoDoCartao.setVisible(false);
-				lblR.setVisible(false);
 
 			}
 		});
 		btnCadastrarCliente.setBounds(38, 120, 180, 114);
 
 		JButton btnAlterarCadastro = new JButton("Manipular Cliente");
-		btnAlterarCadastro.setBackground(new Color(255, 255, 0));
+		btnAlterarCadastro.setBackground(new Color(0, 191, 255));
 		panelAlterar.add(btnAlterarCadastro);
 		btnAlterarCadastro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -608,12 +608,40 @@ public class VendedorView extends JFrame {
 				lblUtilitario.setText("MANIPULAR CLIENTE EXISTENTE");
 				lblUtilitario.setVisible(true);
 				labelSaldoDoCartao.setVisible(false);
-				lblR.setVisible(false);
 
 			}
 		});
 		btnAlterarCadastro.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		btnAlterarCadastro.setBounds(38, 245, 180, 114);
+		
+		labelVendedor = new JLabel("----");
+		labelVendedor.setForeground(new Color(192, 192, 192));
+		labelVendedor.setFont(new Font("Tahoma", Font.BOLD, 14));
+		labelVendedor.setHorizontalAlignment(SwingConstants.CENTER);
+		labelVendedor.setBounds(441, 11, 170, 38);
+		panelAlterar.add(labelVendedor);
+		
+		btnMudarSenha = new JButton("Alterar Senha");
+		btnMudarSenha.setBackground(new Color(255, 255, 224));
+		btnMudarSenha.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MudarSenha mudarSenha  = new MudarSenha();
+				mudarSenha.setCpf(getCpf());
+				mudarSenha.setVisible(true);
+			}
+		});
+		btnMudarSenha.setBounds(144, 11, 132, 38);
+		panelAlterar.add(btnMudarSenha);
+		
+		btnFinalizar = new JButton("Finalizar");
+		btnFinalizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		btnFinalizar.setBackground(new Color(255, 0, 0));
+		btnFinalizar.setBounds(10, 11, 131, 38);
+		panelAlterar.add(btnFinalizar);
 
 		panelCliente.setVisible(false);
 
@@ -691,15 +719,11 @@ public class VendedorView extends JFrame {
 		panelCliente.add(lblUtilitario);
 
 		labelSaldoDoCartao = new JLabel("----");
+		labelSaldoDoCartao.setVisible(false);
 		labelSaldoDoCartao.setForeground(Color.RED);
 		labelSaldoDoCartao.setFont(new Font("Tahoma", Font.BOLD, 12));
-		labelSaldoDoCartao.setBounds(431, 221, 73, 40);
+		labelSaldoDoCartao.setBounds(405, 221, 73, 40);
 		panelCliente.add(labelSaldoDoCartao);
-
-		lblR = new JLabel("+ R$");
-		lblR.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblR.setBounds(398, 221, 57, 40);
-		panelCliente.add(lblR);
 
 		btnBuscar.setVisible(false);
 		lupa1.setVisible(false);
@@ -711,7 +735,6 @@ public class VendedorView extends JFrame {
 
 		lblUtilitario.setVisible(false);
 		labelSaldoDoCartao.setVisible(false);
-		lblR.setVisible(false);
 	}
 
 	public JPanel getPanelCliente() {
@@ -817,4 +840,21 @@ public class VendedorView extends JFrame {
 	public void setCadastro(boolean cadastro) {
 		this.cadastro = cadastro;
 	}
+
+	public JLabel getLabelVendedor() {
+		return labelVendedor;
+	}
+
+	public void setLabelVendedor(JLabel labelVendedor) {
+		this.labelVendedor = labelVendedor;
+	}
+
+	public int getCpf() {
+		return cpf;
+	}
+
+	public void setCpf(int cpf) {
+		this.cpf = cpf;
+	}
+	
 }

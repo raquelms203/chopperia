@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.awt.event.ItemEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -43,9 +44,13 @@ public class ManipularMaquina extends JFrame {
 	private JCheckBox chckbxCerveja;
 	private JPanel panelAdicionarBebida;
 	private JPanel panelEstoque;
+	private JPanel panelHistorico;
+	private String marca = "";
 
 	private JList<String> listBebidas;
-
+	private JList<String> listVendas;
+	private JLabel labelArrecadado;
+	private JLabel labelvendas;
 	JComboBox<String> comboBox;
 
 	private JTextField textValor;
@@ -161,12 +166,104 @@ public class ManipularMaquina extends JFrame {
 
 	}
 
+	public void deletarBebida() {
+		String query = "DELETE FROM opcoes WHERE marca = '" + marca + "'";
+
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.execute();
+
+			prep.close();
+			conn.close();
+			JOptionPane.showMessageDialog(null, "Bebida apagada com sucesso!");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+
+	}
+
+	public void historico() {
+
+		String query = "SELECT * FROM pedidos";
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		DefaultListModel<String> ls = new DefaultListModel<String>();
+		listVendas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			ResultSet rs = prep.executeQuery();
+
+			while (rs.next()) {
+				ls.addElement(
+						"Numero do Cartão: " + rs.getInt("nrCartao") + "  Número do pedido: " + rs.getInt("idPedido")
+								+ "  Opção: " + rs.getInt("idOpcao") + "  Data: " + rs.getDate("dataPedido")
+								+ "  Produto: " + rs.getString("compra") + "  Valor: " + rs.getDouble("valor"));
+			}
+
+			rs.close();
+			prep.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+
+		listVendas.setModel(ls);
+
+	}
+
+	public void valorArrecadado() {
+
+		String query = "SELECT valor FROM pedidos";
+
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			ResultSet rs = prep.executeQuery();
+			DecimalFormat df = new DecimalFormat();
+
+			double soma = 0;
+			df.format(soma);
+			int vendas = 0;
+			
+			while (rs.next()) {
+
+				soma = soma + rs.getDouble("valor");
+				df.format(soma);
+				vendas++;
+			}
+			
+			labelArrecadado.setText("" + soma);
+			labelvendas.setText(""+vendas);
+			rs.close();
+			prep.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+
+	}
+
 	/**
 	 * Create the frame.
 	 */
 	public ManipularMaquina() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 939, 629);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 1163, 748);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -174,11 +271,14 @@ public class ManipularMaquina extends JFrame {
 		contentPane.setLayout(null);
 
 		JButton btnAdicionarBebida = new JButton("Adicionar Bebida");
-		btnAdicionarBebida.setBackground(new Color(255, 255, 255));
+		btnAdicionarBebida.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnAdicionarBebida.setBackground(new Color(192, 192, 192));
 		btnAdicionarBebida.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				panelAdicionarBebida.setVisible(true);
 				panelEstoque.setVisible(false);
+				panelHistorico.setVisible(false);
+
 				MostrarComboBox();
 			}
 		});
@@ -186,11 +286,14 @@ public class ManipularMaquina extends JFrame {
 		contentPane.add(btnAdicionarBebida);
 
 		JButton btnVerBebidas = new JButton("Visualizar Bebidas");
-		btnVerBebidas.setBackground(new Color(255, 255, 255));
+		btnVerBebidas.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnVerBebidas.setBackground(new Color(192, 192, 192));
 		btnVerBebidas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				panelEstoque.setVisible(true);
 				panelAdicionarBebida.setVisible(false);
+				panelHistorico.setVisible(false);
+
 				mostrarListaEstoque();
 			}
 		});
@@ -199,7 +302,7 @@ public class ManipularMaquina extends JFrame {
 
 		JLabel lblControleDaMquina = new JLabel("Controle da M\u00E1quina");
 		lblControleDaMquina.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblControleDaMquina.setBounds(396, 11, 199, 28);
+		lblControleDaMquina.setBounds(362, 11, 199, 28);
 		contentPane.add(lblControleDaMquina);
 
 		panelAdicionarBebida = new JPanel();
@@ -218,6 +321,7 @@ public class ManipularMaquina extends JFrame {
 		textMarcaBebida.setColumns(10);
 
 		JButton btnAdicionar = new JButton("Adicionar");
+		btnAdicionar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnAdicionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (chckbxRefrigerante.isSelected() == true) {
@@ -238,8 +342,8 @@ public class ManipularMaquina extends JFrame {
 				}
 			}
 		});
-		btnAdicionar.setBackground(new Color(0, 153, 204));
-		btnAdicionar.setBounds(231, 224, 89, 23);
+		btnAdicionar.setBackground(new Color(0, 250, 154));
+		btnAdicionar.setBounds(211, 224, 109, 29);
 		panelAdicionarBebida.add(btnAdicionar);
 
 		JLabel lblModelo = new JLabel("Tipo:");
@@ -274,8 +378,8 @@ public class ManipularMaquina extends JFrame {
 		panelAdicionarBebida.add(chckbxRefrigerante);
 
 		JLabel lblNovaBebida = new JLabel("Nova - Bebida");
-		lblNovaBebida.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblNovaBebida.setBounds(134, 22, 97, 14);
+		lblNovaBebida.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblNovaBebida.setBounds(107, 34, 148, 14);
 		panelAdicionarBebida.add(lblNovaBebida);
 
 		JLabel lblValor = new JLabel("Valor por litro:");
@@ -307,29 +411,45 @@ public class ManipularMaquina extends JFrame {
 		panelEstoque.add(scrollPane);
 
 		listBebidas = new JList<String>();
+
+		listBebidas.setSelectedIndex(0);
 		listBebidas.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
-//				String[] format = listBebidas.getSelectedValue().split(". ");
-				
-		}});
+				if (listBebidas.getSelectedValue() != null) {
+					String[] format = listBebidas.getSelectedValue().split("  ");
+					String[] result = {};
+					result = format[1].split(" -");
+					marca = result[0];
+				}
+
+			}
+		});
 		scrollPane.setViewportView(listBebidas);
 
 		JButton btnEditar = new JButton("Editar");
 		btnEditar.setBackground(new Color(255, 255, 102));
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (marca != "") {
+					EditarBebida eb = new EditarBebida(marca);
+
+					eb.setVisible(true);
+				}
 			}
 		});
-		btnEditar.setBounds(371, 58, 132, 23);
+		btnEditar.setBounds(371, 58, 132, 33);
 		panelEstoque.add(btnEditar);
 
 		JButton btnRemover = new JButton("Remover");
 		btnRemover.setBackground(new Color(255, 0, 0));
 		btnRemover.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (marca != "") {
+					deletarBebida();
+				}
 			}
 		});
-		btnRemover.setBounds(371, 92, 132, 23);
+		btnRemover.setBounds(371, 96, 132, 33);
 		panelEstoque.add(btnRemover);
 
 		JLabel lblEstoqueDeBebidas = new JLabel("Estoque de Bebidas");
@@ -344,22 +464,75 @@ public class ManipularMaquina extends JFrame {
 			}
 		});
 		btnFinalizar.setBackground(new Color(255, 0, 0));
-		btnFinalizar.setForeground(Color.WHITE);
+		btnFinalizar.setForeground(new Color(0, 0, 0));
 		btnFinalizar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnFinalizar.setBounds(37, 16, 114, 23);
+		btnFinalizar.setBounds(37, 13, 189, 28);
 		contentPane.add(btnFinalizar);
 
 		JButton btnHistorico = new JButton("Historico");
-		btnHistorico.setBackground(new Color(255, 255, 255));
+		btnHistorico.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnHistorico.setBackground(new Color(192, 192, 192));
 		btnHistorico.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				historico();
+				panelAdicionarBebida.setVisible(false);
+				panelEstoque.setVisible(false);
+				panelHistorico.setVisible(true);
+				valorArrecadado();
 			}
 		});
 		btnHistorico.setBounds(37, 287, 189, 78);
 		contentPane.add(btnHistorico);
+
+		panelHistorico = new JPanel();
+		panelHistorico.setBackground(new Color(255, 255, 255));
+		panelHistorico.setBounds(236, 36, 901, 577);
+		contentPane.add(panelHistorico);
+		panelHistorico.setLayout(null);
+
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(26, 71, 638, 495);
+		panelHistorico.add(scrollPane_1);
+
+		listVendas = new JList<String>();
+		scrollPane_1.setViewportView(listVendas);
+
+		JLabel lblVendasRealizadas = new JLabel("Hist\u00F3rico de Vendas  Realizadas");
+		lblVendasRealizadas.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblVendasRealizadas.setBounds(281, 28, 325, 24);
+		panelHistorico.add(lblVendasRealizadas);
+
+		JLabel lblValorArrecadado = new JLabel("Valor Arrecadado:");
+		lblValorArrecadado.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblValorArrecadado.setBounds(686, 129, 144, 24);
+		panelHistorico.add(lblValorArrecadado);
+
+		JLabel lblR = new JLabel("R$");
+		lblR.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblR.setBounds(686, 164, 48, 14);
+		panelHistorico.add(lblR);
+
+		labelArrecadado = new JLabel("----");
+		labelArrecadado.setForeground(new Color(255, 0, 0));
+		labelArrecadado.setBackground(new Color(255, 255, 255));
+		labelArrecadado.setFont(new Font("Tahoma", Font.BOLD, 14));
+		labelArrecadado.setBounds(729, 164, 74, 14);
+		panelHistorico.add(labelArrecadado);
+		
+		JLabel lblQuantidadeDeVendas = new JLabel("Quantidade  de Vendas:");
+		lblQuantidadeDeVendas.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblQuantidadeDeVendas.setBounds(686, 75, 191, 27);
+		panelHistorico.add(lblQuantidadeDeVendas);
+		
+		 labelvendas = new JLabel("----");
+		labelvendas.setForeground(new Color(0, 0, 255));
+		labelvendas.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		labelvendas.setBounds(729, 102, 74, 24);
+		panelHistorico.add(labelvendas);
 		panelEstoque.setVisible(false);
 
 		panelAdicionarBebida.setVisible(false);
+		panelHistorico.setVisible(false);
 	}
 
 	public void limparCampos() {
@@ -379,4 +552,11 @@ public class ManipularMaquina extends JFrame {
 		comboBox.addItem("100 Litros");
 	}
 
+	public String getMarca() {
+		return marca;
+	}
+
+	public void setMarca(String marca) {
+		this.marca = marca;
+	}
 }
