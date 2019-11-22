@@ -124,7 +124,7 @@ public class ClienteView extends JFrame {
 			}
 		});
 		btnSair.setBackground(new Color(255, 0, 0));
-		btnSair.setBounds(338, 176, 138, 34);
+		btnSair.setBounds(321, 176, 155, 34);
 		contentPane.add(btnSair);
 		
 

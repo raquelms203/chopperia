@@ -103,6 +103,12 @@ public class EditarBebida extends JFrame {
 				contentPane.add(lblNewLabel);
 
 			}
+			
+			prep.close();
+			rs.close();
+			conn.close();
+			
+			
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, e);
 			// TODO: handle exception
@@ -196,7 +202,7 @@ public class EditarBebida extends JFrame {
 		this.marcaSelecionada = marcaSelecionada;
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 422, 428);
+		setBounds(100, 100, 422, 359);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -208,11 +214,12 @@ public class EditarBebida extends JFrame {
 		contentPane.add(lblTipo);
 
 		JLabel lblEditarBebida = new JLabel("Editar Bebida");
-		lblEditarBebida.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblEditarBebida.setBounds(164, 11, 110, 14);
+		lblEditarBebida.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblEditarBebida.setBounds(134, 31, 180, 30);
 		contentPane.add(lblEditarBebida);
 
 		chckbxCerveja = new JCheckBox("Cerveja");
+		chckbxCerveja.setBackground(new Color(255, 255, 255));
 		chckbxCerveja.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (chckbxCerveja.isSelected())
@@ -223,6 +230,7 @@ public class EditarBebida extends JFrame {
 		contentPane.add(chckbxCerveja);
 
 		chckbxRefrigerante = new JCheckBox("Refrigerante");
+		chckbxRefrigerante.setBackground(new Color(255, 255, 255));
 		chckbxRefrigerante.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (chckbxRefrigerante.isSelected())
@@ -242,7 +250,8 @@ public class EditarBebida extends JFrame {
 		txtMarca.setColumns(10);
 
 		comboBox = new JComboBox<String>();
-		comboBox.setBounds(171, 154, 91, 30);
+		comboBox.setBackground(new Color(255, 255, 255));
+		comboBox.setBounds(171, 154, 174, 30);
 		contentPane.add(comboBox);
 
 		JLabel lblValorPorLitro = new JLabel("Valor por litro:");
@@ -257,14 +266,15 @@ public class EditarBebida extends JFrame {
 		JButton btnConcludo = new JButton("CONFIRMAR");
 		btnConcludo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+			
 				atualizarBebida();
 				dispose();
 			}
 		});
 		btnConcludo.setForeground(new Color(0, 0, 0));
 		btnConcludo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnConcludo.setBackground(new Color(0, 255, 153));
-		btnConcludo.setBounds(127, 280, 174, 68);
+		btnConcludo.setBackground(new Color(0, 250, 154));
+		btnConcludo.setBounds(76, 252, 269, 30);
 		contentPane.add(btnConcludo);
 
 		JLabel lblAdicionar = new JLabel("Adicionar");

@@ -511,6 +511,8 @@ public class Maquina extends JFrame {
 
 				prep.close();
 				conn.close();
+				
+				fazerPedido(listCerveja.getSelectedValue(),valor);
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "EROW" + e);
@@ -755,7 +757,9 @@ public class Maquina extends JFrame {
 
 				prep.close();
 				conn.close();
-
+				
+				fazerPedido(listRefrigerante.getSelectedValue(),valor);
+				
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "EROW" + e);
 			}
@@ -764,26 +768,20 @@ public class Maquina extends JFrame {
 
 			JOptionPane.showMessageDialog(null, "Você não possui saldo suficiente");
 		}
-
+		
 		refresh();
 
 	}
 
-	public void fazerPedido() {
-		String marca = "";
+	public void fazerPedido(String marcax, double valor) {
+		String marca = marcax;
 		int id = -1;
-		java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
-		
-		if (!listCerveja.isSelectionEmpty())
-			marca = listCerveja.getSelectedValue();
-
-		else if (!listRefrigerante.isSelectionEmpty())
-			marca = listRefrigerante.getSelectedValue();
+		java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());		
 		
 		String query = "SELECT \"idOpcao\" FROM opcoes WHERE marca = '" + marca + "'";
 		
-		String query2 = "INSERT INTO pedidos (\"idOpcao\", \"nrCartao\", \"dataPedido\") "+ 
-				"	VALUES ( ?, ?, ?); ";
+		String query2 = "INSERT INTO pedidos (\"idOpcao\", \"nrCartao\", \"dataPedido\", compra, \"valor\") "+ 
+				"	VALUES ( ?, ?, ?, ?, ?); ";
 		Conexao con = new Conexao();
 		Connection conn = con.getConnection();
 		
@@ -802,14 +800,14 @@ public class Maquina extends JFrame {
 			prep2.setInt(1, id);
 			prep2.setInt(2, NUMEROCARTAOMANIPULADO);
 			prep2.setDate(3, sqlDate);
+			prep2.setString(4, marca);
+			prep2.setDouble(5, valor);
 			
 			prep2.execute();
 			
 			prep2.close();
 			conn.close();
-			
-			JOptionPane.showMessageDialog(null, "Pedido realizado com sucesso!");
-			
+					
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -928,7 +926,6 @@ public class Maquina extends JFrame {
 
 					dispose();
 				} else {
-					fazerPedido();
 					LoginCliente.frame.setVisible(true);
 					NUMEROCARTAOMANIPULADO = -1;
 					dispose();
@@ -982,6 +979,34 @@ public class Maquina extends JFrame {
 		});
 		btnRefresh.setBounds(624, 11, 44, 33);
 		contentPane.add(btnRefresh);
+		
+		JButton btnComprarCerveja = new JButton("Comprar");
+		btnComprarCerveja.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnComprarCerveja.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(listCerveja.getSelectedIndex()  >=0) {
+					
+					comprarCerveja(listCerveja.getSelectedValue());
+					
+				}
+			}
+		});
+		btnComprarCerveja.setBackground(new Color(0, 191, 255));
+		btnComprarCerveja.setBounds(255, 238, 172, 66);
+		contentPane.add(btnComprarCerveja);
+		
+		JButton btnComprarRefrigerante = new JButton("Comprar");
+		btnComprarRefrigerante.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnComprarRefrigerante.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(listRefrigerante.getSelectedIndex() >=0) {
+					comprarRefrigerante(listRefrigerante.getSelectedValue());
+				}
+			}
+		});
+		btnComprarRefrigerante.setBackground(new Color(0, 191, 255));
+		btnComprarRefrigerante.setBounds(670, 236, 172, 66);
+		contentPane.add(btnComprarRefrigerante);
 
 		verificaIdade(cartaoCliente.getLbDataNascClient().getText());
 	}
