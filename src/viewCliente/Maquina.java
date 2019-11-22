@@ -649,7 +649,7 @@ public class Maquina extends JFrame {
 
 			break;
 		case 2:
-			valor = valor * 0.7 ;
+			valor = valor * 0.7;
 			df.format(valor);
 
 			break;
@@ -769,6 +769,56 @@ public class Maquina extends JFrame {
 
 	}
 
+	public void fazerPedido() {
+		String marca = "";
+		int id = -1;
+		java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
+		
+		if (!listCerveja.isSelectionEmpty())
+			marca = listCerveja.getSelectedValue();
+
+		else if (!listRefrigerante.isSelectionEmpty())
+			marca = listRefrigerante.getSelectedValue();
+		
+		String query = "SELECT \"idOpcao\" FROM opcoes WHERE marca = '" + marca + "'";
+		
+		String query2 = "INSERT INTO pedidos (\"idOpcao\", \"nrCartao\", \"dataPedido\") "+ 
+				"	VALUES ( ?, ?, ?); ";
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			ResultSet rs = prep.executeQuery();
+			
+			while(rs.next()) {
+				id = rs.getInt("idOpcao");
+			}
+			
+			prep.close();
+			rs.close();
+			
+			PreparedStatement prep2 = conn.prepareStatement(query2);
+			prep2.setInt(1, id);
+			prep2.setInt(2, NUMEROCARTAOMANIPULADO);
+			prep2.setDate(3, sqlDate);
+			
+			prep2.execute();
+			
+			prep2.close();
+			conn.close();
+			
+			JOptionPane.showMessageDialog(null, "Pedido realizado com sucesso!");
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e);
+		}
+		
+	}
+
 	public void MostrarComboBoxRefrigerante(double preco) {
 		NumberFormat formatter = NumberFormat.getCurrencyInstance();
 		comboBoxRefrigerante.removeAllItems();
@@ -840,16 +890,6 @@ public class Maquina extends JFrame {
 		});
 		scrollPane.setViewportView(listCerveja);
 
-		JButton btnPersonalizarBebida = new JButton("Personalizar Bebida");
-		btnPersonalizarBebida.setBackground(Color.LIGHT_GRAY);
-		btnPersonalizarBebida.setForeground(Color.DARK_GRAY);
-		btnPersonalizarBebida.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		btnPersonalizarBebida.setBounds(670, 309, 172, 61);
-		contentPane.add(btnPersonalizarBebida);
-
 		JLabel lblCervejas = new JLabel("Cervejas");
 		lblCervejas.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblCervejas.setBounds(99, 166, 115, 25);
@@ -872,30 +912,6 @@ public class Maquina extends JFrame {
 		lblNewLabel_1.setBounds(497, 166, 115, 27);
 		contentPane.add(lblNewLabel_1);
 
-		JButton btnComprarRefrigerante = new JButton("Comprar");
-		btnComprarRefrigerante.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnComprarRefrigerante.setBackground(new Color(0, 191, 255));
-		btnComprarRefrigerante.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (listRefrigerante.getSelectedIndex() >= 0) {
-
-					comprarRefrigerante(listRefrigerante.getSelectedValue());
-				} else {
-
-				}
-
-			}
-		});
-		btnComprarRefrigerante.setBounds(670, 237, 172, 61);
-		contentPane.add(btnComprarRefrigerante);
-
-		JButton btnComprarCerveja = new JButton("Comprar");
-		btnComprarCerveja.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnComprarCerveja.setBounds(255, 236, 172, 63);
-		contentPane.add(btnComprarCerveja);
-		btnComprarCerveja.setBackground(new Color(0, 191, 255));
-
 		JLabel lblBebidasDisponiveis = new JLabel("BEBIDAS DISPON\u00CDVEIS");
 		lblBebidasDisponiveis.setFont(new Font("Tahoma", Font.BOLD, 18));
 		lblBebidasDisponiveis.setBounds(239, 120, 258, 27);
@@ -912,7 +928,7 @@ public class Maquina extends JFrame {
 
 					dispose();
 				} else {
-
+					fazerPedido();
 					LoginCliente.frame.setVisible(true);
 					NUMEROCARTAOMANIPULADO = -1;
 					dispose();
@@ -953,25 +969,8 @@ public class Maquina extends JFrame {
 		btnVisualizarCartao.setBounds(670, 11, 172, 33);
 		contentPane.add(btnVisualizarCartao);
 
-		JButton button = new JButton("Personalizar Bebida");
-		button.setBackground(Color.LIGHT_GRAY);
-		button.setForeground(Color.DARK_GRAY);
-		button.setBounds(255, 309, 172, 61);
-		contentPane.add(button);
-		btnComprarCerveja.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (listCerveja.getSelectedIndex() >= 0) {
-
-					comprarCerveja(listCerveja.getSelectedValue());
-
-				}
-
-			}
-		});
-
 		labelNumeroCliente.setText(cartaoCliente.getLbCartaoCliente().getText());
-		labelSaldoDoCliente.setText(cartaoCliente.getLbSaldoClient().getText());
+		labelSaldoDoCliente.setText("R$ " + cartaoCliente.getLbSaldoClient().getText());
 
 		JButton btnRefresh = new JButton("()");
 		btnRefresh.setBackground(new Color(255, 255, 255));

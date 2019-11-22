@@ -84,6 +84,7 @@ public class GerenteView extends JFrame {
 		panelVerVendedores.add(scrollPane);
 
 		JList listVendedores = new JList();
+		listVendedores.setSelectedIndex(0);
 		scrollPane.setViewportView(listVendedores);
 		panelVerVendedores.setVisible(false);
 

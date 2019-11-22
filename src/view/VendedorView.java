@@ -58,7 +58,6 @@ public class VendedorView extends JFrame {
 	private JLabel lblCarto;
 	private JLabel lblUtilitario;
 	private JLabel labelSaldoDoCartao;
-	private JLabel lblR;
 
 	public static void main(String[] args) {
 		try {
@@ -150,7 +149,7 @@ public class VendedorView extends JFrame {
 
 			ResultSet res = prep.executeQuery();
 
-			DecimalFormat df = new DecimalFormat("0.00");
+			NumberFormat formatter = NumberFormat.getCurrencyInstance();			
 			double saldo = 0;
 
 			if (res.next()) {
@@ -162,12 +161,11 @@ public class VendedorView extends JFrame {
 				result = true;
 
 			}
-			df.format(saldo);
+			String stringSaldo = formatter.format(saldo);
 
 			textSaldo.setText("" + 0);
-			labelSaldoDoCartao.setText("" + saldo);
+			labelSaldoDoCartao.setText(stringSaldo);
 			labelSaldoDoCartao.setVisible(true);
-			lblR.setVisible(true);
 			res.close();
 			prep.close();
 			conn.close();
@@ -196,7 +194,7 @@ public class VendedorView extends JFrame {
 			prep.setInt(1, Integer.parseInt(textCartao.getText()));
 
 			ResultSet res = prep.executeQuery();
-			DecimalFormat df = new DecimalFormat("0.00");
+			NumberFormat formatter = NumberFormat.getCurrencyInstance();			
 			double saldo = 0;
 
 			if (res.next()) {
@@ -207,12 +205,11 @@ public class VendedorView extends JFrame {
 				textDataNascimento.setText(dateParaString(res.getDate("dataNasc")));
 				result = true;
 			}
-			df.format(saldo);
+			String stringSaldo = formatter.format(saldo);
 
 			textSaldo.setText("" + 0);
-			labelSaldoDoCartao.setText("" + saldo);
+			labelSaldoDoCartao.setText(stringSaldo);
 			labelSaldoDoCartao.setVisible(true);
-			lblR.setVisible(true);
 
 			res.close();
 			prep.close();
@@ -546,7 +543,6 @@ public class VendedorView extends JFrame {
 					return;
 				atualizaCartao();
 				mostrarPainelManipular();
-				lblR.setVisible(false);
 				labelSaldoDoCartao.setVisible(false);
 			}
 		});
@@ -592,7 +588,6 @@ public class VendedorView extends JFrame {
 				lblUtilitario.setText("CADASTRAR NOVO CLIENTE");
 				lblUtilitario.setVisible(true);
 				labelSaldoDoCartao.setVisible(false);
-				lblR.setVisible(false);
 
 			}
 		});
@@ -608,7 +603,6 @@ public class VendedorView extends JFrame {
 				lblUtilitario.setText("MANIPULAR CLIENTE EXISTENTE");
 				lblUtilitario.setVisible(true);
 				labelSaldoDoCartao.setVisible(false);
-				lblR.setVisible(false);
 
 			}
 		});
@@ -691,15 +685,11 @@ public class VendedorView extends JFrame {
 		panelCliente.add(lblUtilitario);
 
 		labelSaldoDoCartao = new JLabel("----");
+		labelSaldoDoCartao.setVisible(false);
 		labelSaldoDoCartao.setForeground(Color.RED);
 		labelSaldoDoCartao.setFont(new Font("Tahoma", Font.BOLD, 12));
-		labelSaldoDoCartao.setBounds(431, 221, 73, 40);
+		labelSaldoDoCartao.setBounds(405, 221, 73, 40);
 		panelCliente.add(labelSaldoDoCartao);
-
-		lblR = new JLabel("+ R$");
-		lblR.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblR.setBounds(398, 221, 57, 40);
-		panelCliente.add(lblR);
 
 		btnBuscar.setVisible(false);
 		lupa1.setVisible(false);
@@ -711,7 +701,6 @@ public class VendedorView extends JFrame {
 
 		lblUtilitario.setVisible(false);
 		labelSaldoDoCartao.setVisible(false);
-		lblR.setVisible(false);
 	}
 
 	public JPanel getPanelCliente() {

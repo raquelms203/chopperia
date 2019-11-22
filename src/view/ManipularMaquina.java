@@ -161,6 +161,28 @@ public class ManipularMaquina extends JFrame {
 		listBebidas.setModel(ls);
 
 	}
+	
+	public void deletarBebida() {
+		String query = "DELETE FROM opcoes WHERE marca = '" + marca + "'";
+		
+		Conexao con = new Conexao();
+		Connection conn = con.getConnection();
+		
+		try {
+			PreparedStatement prep = conn.prepareStatement(query);
+			prep.execute();
+			
+			prep.close();
+			conn.close();
+			JOptionPane.showMessageDialog(null, "Bebida apagada com sucesso!");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e);
+			return;
+		}
+		
+	}
 
 	/**
 	 * Create the frame.
@@ -308,12 +330,15 @@ public class ManipularMaquina extends JFrame {
 		panelEstoque.add(scrollPane);
 
 		listBebidas = new JList<String>();
+		listBebidas.setSelectedIndex(0);
 		listBebidas.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent arg0) {
+				if(listBebidas.getSelectedValue() != null) {
 				String[] format = listBebidas.getSelectedValue().split("  ");
-				
-				format = format[1].split(" -");
-				marca = format[0];
+				String[] result = {};
+				result = format[1].split(" -");
+				marca = result[0];
+			}
 				
 			}
 		});
@@ -337,6 +362,9 @@ public class ManipularMaquina extends JFrame {
 		btnRemover.setBackground(new Color(255, 0, 0));
 		btnRemover.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(marca!= "") {
+					deletarBebida();
+				}
 			}
 		});
 		btnRemover.setBounds(371, 92, 132, 23);
